@@ -1,0 +1,12 @@
+language: scala
+scala:
+- 2.10.4
+jdk:
+- openjdk7
+deploy:
+  provider: heroku
+  api_key:
+    secure: F7G7HC/KhbwWqMZcyKqm9r720AzsNcQqEjmF96qjiKsehwvHUKv0cLmz+cvIU738RxeQhAtP5uw4T/Aab4UbsyoLZx9mhBQoPYc108svlzXmK/Hq8wD8kTOZdDwUoBG6HfdKx1ZEuvFD/rnRA5sG61rK8XBa74oEQ0WQW18wpt4=
+  app: gresley
+  on:
+    repo: matt-thomson/gresley
