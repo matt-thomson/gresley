@@ -1,10 +1,8 @@
 package uk.co.mattthomson.coursera.ggp.gresley.parser
 
 import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser._
-import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser.Role
-import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser.Relation
 
-class GameDescription(val roles: Seq[String], val relations: Map[String, Seq[Seq[String]]]) {
+class GameDescription(val roles: Seq[String], val relations: Map[String, Seq[RelationArgs]]) {
 }
 
 object GameDescription {
@@ -12,7 +10,9 @@ object GameDescription {
     val roles = statements.collect { case Role(role) => role }
     val relations = statements.collect { case r: Relation => r }
       .groupBy(_.name)
-      .mapValues { relations => relations.map(_.terms.map(extractLiteralTerm)) }
+      .mapValues { relations => relations.map { r => RelationArgs(r.terms.map(extractLiteralTerm)) } }
+
+    val relationRules = statements.collect { case Conditional(r: Relation, conditions) => (r, conditions) }
 
     new GameDescription(roles, relations)
   }
