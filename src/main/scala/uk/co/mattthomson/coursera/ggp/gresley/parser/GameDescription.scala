@@ -10,7 +10,7 @@ object GameDescription {
     val roles = statements.collect { case Role(role) => role }
     val relations = statements.collect { case r: Relation => r }
       .groupBy(_.name)
-      .mapValues { relations => relations.map { r => RelationArgs(r.terms.map(extractLiteralTerm)) } }
+      .mapValues { relations => relations.map { r => RelationArgs(r.terms.map(extractLiteralTerm):_*) } }
 
     val relationRules = statements.collect { case Conditional(r: Relation, conditions) => (r, conditions) }
 
