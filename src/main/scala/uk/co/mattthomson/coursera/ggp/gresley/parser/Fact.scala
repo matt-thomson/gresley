@@ -23,3 +23,12 @@ case class Relation(name: String, terms: Seq[Term]) extends Fact {
     case _ => None
   }
 }
+
+case class Base(fact: Fact) extends Fact {
+  override def substitute(values: Map[String, String]) = Base(fact.substitute(values))
+
+  override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
+    case Base(otherFact) => fact.matches(otherFact, values)
+    case _ => None
+  }
+}

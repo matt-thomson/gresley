@@ -18,7 +18,7 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse a base rule" in {
-    parse("(base (cell a))", Base(Proposition("cell", List("a"))))
+    parse("(base (cell a))", Base(Relation("cell", List("a"))))
   }
 
   it should "parse a conditional" in {
@@ -34,16 +34,17 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     parse(game,
       Role("robot"),
 
-      Base(Proposition("cell", List("a"))),
-      Base(Proposition("cell", List("b"))),
-      Base(Proposition("cell", List("c"))),
-      Base(Proposition("cell", List("d"))),
-      Base(Proposition("gold", List("a"))),
-      Base(Proposition("gold", List("b"))),
-      Base(Proposition("gold", List("c"))),
-      Base(Proposition("gold", List("d"))),
-      Base(Proposition("gold", List("i"))),
-      Base(Proposition("step", List("1"))),
+      Base(Relation("cell", List("a"))),
+      Base(Relation("cell", List("b"))),
+      Base(Relation("cell", List("c"))),
+      Base(Relation("cell", List("d"))),
+      Base(Relation("gold", List("a"))),
+      Base(Relation("gold", List("b"))),
+      Base(Relation("gold", List("c"))),
+      Base(Relation("gold", List("d"))),
+      Base(Relation("gold", List("i"))),
+      Base(Relation("step", List("1"))),
+      Conditional(Base(Relation("step", List(VariableTerm("x")))), List(Relation("succ", List(VariableTerm("y"), VariableTerm("x"))))),
 
       Input(Role("robot"), Action("move")),
       Input(Role("robot"), Action("grab")),
