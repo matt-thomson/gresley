@@ -3,6 +3,7 @@ package uk.co.mattthomson.coursera.ggp.gresley.parser
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import uk.co.mattthomson.coursera.ggp.gresley.parser.Term._
+import scala.io.Source
 
 class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
   "A game description" should "process roles correctly" in {
@@ -78,5 +79,29 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Relation("number", List("2")),
       Relation("number", List("3"))
     ))
+  }
+
+  "A real game" should "have the correct roles" in {
+    val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
+    val description = GameDescription(game)
+
+    description.roles should be (List("robot"))
+  }
+
+  it should "have the correct relations" in {
+    val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
+    val description = GameDescription(game)
+
+    description.facts.contains(Relation("succ", List("1", "2"))) should be (true)
+    description.facts.contains(Relation("adjacent", List("a", "b"))) should be (true)
+  }
+
+  it should "have the correct base relations" in {
+    val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
+    val description = GameDescription(game)
+
+    description.facts.contains(Base(Relation("cell", List("a")))) should be (true)
+    description.facts.contains(Base(Relation("step", List("1")))) should be (true)
+    description.facts.contains(Base(Relation("step", List("10")))) should be (true)
   }
 }

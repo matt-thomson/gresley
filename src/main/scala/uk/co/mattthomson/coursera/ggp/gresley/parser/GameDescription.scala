@@ -18,4 +18,10 @@ class GameDescription(private val statements: Seq[Statement]) {
 
 object GameDescription {
   def apply(statements: Seq[Statement]): GameDescription = new GameDescription(statements)
+
+  def apply(gdl: String): GameDescription = {
+    val parser = new GdlParser
+    val statements = parser.parseAll(parser.game, gdl)
+    GameDescription(statements.get)
+  }
 }
