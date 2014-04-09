@@ -2,7 +2,6 @@ package uk.co.mattthomson.coursera.ggp.gresley.parser
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser.Conditional
 import uk.co.mattthomson.coursera.ggp.gresley.parser.Term._
 
 class GameDescriptionSpec extends FlatSpec with ShouldMatchers {

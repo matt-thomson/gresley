@@ -37,5 +37,4 @@ object GdlParser {
 
   case class Input(role: Role, action: Action) extends Statement
   case class Base(proposition: Proposition) extends Statement
-  case class Conditional(conclusion: Fact, conditions: Seq[Fact]) extends Statement
 }
