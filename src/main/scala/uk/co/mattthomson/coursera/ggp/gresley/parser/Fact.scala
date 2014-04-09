@@ -32,3 +32,11 @@ case class Base(fact: Fact) extends Fact {
     case _ => None
   }
 }
+
+case class Action(nameTerm: Term)
+
+case class Input(role: Role, action: Action) extends Fact {
+  override def substitute(values: Map[String, String]) = Input(role.substitute(values), Action(action.nameTerm.substitute(values)))
+
+  override def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]] = ???
+}

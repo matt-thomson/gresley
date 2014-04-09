@@ -87,4 +87,33 @@ class FactSpec extends FlatSpec with ShouldMatchers {
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
+
+  "An input" should "substitute values where possible" in {
+    val fact = Input(Role(VariableTerm("x")), Action(VariableTerm("y")))
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result should be (Input(Role("1"), Action("2")))
+  }
+
+  it should "match against a matching input" ignore {
+    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y")))
+    val completeFact = Input(Role("black"), Action("up"))
+
+    partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "black", "y" -> "up")))
+  }
+
+  it should "not match against a non-matching input" ignore {
+    val partialFact = Input(Role("white"), Action(VariableTerm("y")))
+    val completeFact = Input(Role("black"), Action("up"))
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "match against a matching input" ignore {
+    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y")))
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
 }
