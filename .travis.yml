@@ -3,7 +3,7 @@ scala:
 - 2.10.4
 jdk:
 - openjdk7
-script: sbt compile test coveralls
+script: sbt compile test
 deploy:
   provider: heroku
   buildpack: https://github.com/matt-thomson/heroku-buildpack-scala.git
