@@ -21,7 +21,7 @@ class GdlParser extends RegexParsers {
   private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
 
   private def statement: Parser[Statement] = input | base | conditional | fact
-  private def fact = role | relation
+  private def fact: Parser[Fact] = role | relation
 
   private def role = "(role" ~> name <~ ")" ^^ { case role => Role(role) }
   private def input = "(input" ~> name ~ name <~ ")" ^^ { case role ~ action => Input(Role(role), Action(action)) }
@@ -35,7 +35,6 @@ object GdlParser {
   case class Proposition(name: String, terms: Seq[Term])
   case class Action(name: String)
 
-  trait Statement
   case class Input(role: Role, action: Action) extends Statement
   case class Base(proposition: Proposition) extends Statement
   case class Conditional(conclusion: Fact, conditions: Seq[Fact]) extends Statement

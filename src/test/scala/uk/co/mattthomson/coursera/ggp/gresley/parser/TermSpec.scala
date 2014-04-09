@@ -67,4 +67,54 @@ class TermSpec extends FlatSpec with ShouldMatchers {
 
     term.matches("y") should be (Some(Map("x" -> "y")))
   }
+
+  "The term matcher" should "match a variable to a literal" in {
+    val partialTerms: List[Term] = List("1", VariableTerm("y"), "3")
+    val completeTerms: List[Term] = List("1", "2", "3")
+
+    Term.matchTerms(partialTerms, completeTerms, Map()) should be (Some(Map("y" -> "2")))
+  }
+
+  it should "update the existing matches" in {
+    val partialTerms: List[Term] = List(VariableTerm("x"), VariableTerm("y"), "3")
+    val completeTerms: List[Term] = List("1", "2", "3")
+
+    Term.matchTerms(partialTerms, completeTerms, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not match if there is a conflict" in {
+    val partialTerms: List[Term] = List(VariableTerm("x"), VariableTerm("y"), "3")
+    val completeTerms: List[Term] = List("4", "2", "3")
+
+    Term.matchTerms(partialTerms, completeTerms, Map("x" -> "1")) should be (None)
+  }
+
+  it should "not match against a different number of terms" in {
+    val partialTerms: List[Term] = List("1", VariableTerm("y"), "3")
+    val completeTerms: List[Term] = List("1", "2")
+
+    Term.matchTerms(partialTerms, completeTerms, Map()) should be (None)
+  }
+
+  it should "not match if a term can't be matched" in {
+    val partialTerms: List[Term] = List("1", VariableTerm("y"), "3")
+    val completeTerms: List[Term] = List("1", "2", "4")
+
+    Term.matchTerms(partialTerms, completeTerms, Map()) should be (None)
+  }
+
+  it should "not match if a term must take two values" in {
+    val partialTerms: List[Term] = List("1", VariableTerm("y"), VariableTerm("y"))
+    val completeTerms: List[Term] = List("1", "2", "3")
+
+    Term.matchTerms(partialTerms, completeTerms, Map()) should be (None)
+  }
+
+  it should "throw when trying to match against a fact with variables" in {
+    val partialTerms: List[Term] = List("1", VariableTerm("y"), "3")
+
+    intercept[IllegalArgumentException] {
+      Term.matchTerms(partialTerms, partialTerms, Map())
+    }
+  }
 }

@@ -29,4 +29,24 @@ case class VariableTerm(name: String) extends Term {
 
 object Term {
   implicit def stringToLiteral(name: String) = LiteralTerm(name)
+
+  def matchTerms(variableTerms: Seq[Term], completeTerms: Seq[Term], values: Map[String, String]) = {
+    if (!completeTerms.forall(_.isInstanceOf[LiteralTerm])) throw new IllegalArgumentException("Complete terms not complete")
+    if (completeTerms.size != variableTerms.size) None
+    else {
+      val substituted = variableTerms.map { term => term.substitute(values) }
+      val zippedTerms = substituted.zip(completeTerms).map { case (t1, t2) => t1.matches(t2) }
+
+      if (zippedTerms.contains(None)) None
+      else {
+        val newValues = zippedTerms.flatten.flatten
+        val updatedValues = (newValues ++ values)
+          .groupBy { case (v, _) => v }
+          .mapValues { values => values.map { case (_, v) => v }.toSet }
+
+        if (updatedValues.exists { case (x, vs) => vs.size > 1 }) None
+        else Some(updatedValues.mapValues(_.head))
+      }
+    }
+  }
 }

@@ -7,7 +7,7 @@ class GameDescription(private val statements: Seq[Statement]) {
 
   lazy val facts = {
     val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
-    val conditionalFacts = statements.collect { case c@Conditional(Fact(_, _), _) => c }.toSet
+    val conditionalFacts = statements.collect { case c: Conditional => c }.toSet
 
     propagateConditionals(simpleFacts, conditionalFacts)
   }
@@ -19,7 +19,7 @@ class GameDescription(private val statements: Seq[Statement]) {
       m <- condition.matches(f, v)
     } yield m).toSet
 
-    def propagateConditional(facts: Set[Fact], conditional: Conditional) = {
+    def propagateConditional(facts: Set[Fact], conditional: Conditional): Set[Fact] = {
       val values = conditional.conditions.foldLeft(Set[Map[String, String]](Map()))(matchCondition(facts))
       val newFacts = values.map(conditional.conclusion.substitute)
       (facts ++ newFacts).toSet
