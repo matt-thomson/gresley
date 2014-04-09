@@ -2,23 +2,35 @@ package uk.co.mattthomson.coursera.ggp.gresley.parser
 
 import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser._
 
-class GameDescription(val roles: Seq[String], val relations: Map[String, Seq[RelationArgs]]) {
+class GameDescription(private val statements: Seq[Statement]) {
+  lazy val roles = statements.collect { case Role(LiteralTerm(role)) => role }
+
+  lazy val facts = {
+    val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
+    val conditionalFacts = statements.collect { case c@Conditional(Fact(_, _), _) => c }.toSet
+
+    propagateConditionals(simpleFacts, conditionalFacts)
+  }
+
+  private def propagateConditionals(simpleFacts: Set[Fact], conditionalFacts: Set[Conditional]): Set[Fact] = {
+    def matchCondition(facts: Set[Fact])(values: Set[Map[String, String]], condition: Fact): Set[Map[String, String]] = (for {
+      f <- facts
+      v <- values
+      m <- condition.matches(f, v)
+    } yield m).toSet
+
+    def propagateConditional(facts: Set[Fact], conditional: Conditional) = {
+      val values = conditional.conditions.foldLeft(Set[Map[String, String]](Map()))(matchCondition(facts))
+      val newFacts = values.map(conditional.conclusion.substitute)
+      (facts ++ newFacts).toSet
+    }
+
+    val updatedFacts = conditionalFacts.foldLeft(simpleFacts)(propagateConditional)
+    
+    if (simpleFacts == updatedFacts) simpleFacts else propagateConditionals(updatedFacts, conditionalFacts)
+  }
 }
 
 object GameDescription {
-  def apply(statements: Seq[Statement]): GameDescription = {
-    val roles = statements.collect { case Role(role) => role }
-    val relations = statements.collect { case r: Relation => r }
-      .groupBy(_.name)
-      .mapValues { relations => relations.map { r => RelationArgs(r.terms.map(extractLiteralTerm):_*) } }
-
-    val relationRules = statements.collect { case Conditional(r: Relation, conditions) => (r, conditions) }
-
-    new GameDescription(roles, relations)
-  }
-
-  private def extractLiteralTerm(term: Term) = term match {
-    case LiteralTerm(t) => t
-    case VariableTerm(_) => throw new IllegalArgumentException("Not a literal term")
-  }
+  def apply(statements: Seq[Statement]): GameDescription = new GameDescription(statements)
 }

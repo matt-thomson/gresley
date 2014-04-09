@@ -3,6 +3,7 @@ package uk.co.mattthomson.coursera.ggp.gresley.parser
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import uk.co.mattthomson.coursera.ggp.gresley.parser.GdlParser._
+import uk.co.mattthomson.coursera.ggp.gresley.parser.Term._
 import scala.io.Source
 
 class GdlParserSpec extends FlatSpec with ShouldMatchers {
@@ -17,11 +18,11 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse a base rule" in {
-    parse("(base (cell a))", Base(Proposition("cell", List(LiteralTerm("a")))))
+    parse("(base (cell a))", Base(Proposition("cell", List("a"))))
   }
 
-  it should "parse a conditional base rule" in {
-    parse("(<= (base (step ?x)) (succ ?y ?x))", Conditional(Base(Proposition("step", List(VariableTerm("x")))), List(Relation("succ", List(VariableTerm("y"), VariableTerm("x"))))))
+  it should "parse a conditional" in {
+    parse("(<= (step ?x) (succ 1 ?x))", Conditional(Relation("step", List(VariableTerm("x"))), List(Relation("succ", List("1", VariableTerm("x"))))))
   }
 
   it should "ignore a comment" in {
@@ -33,36 +34,35 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     parse(game,
       Role("robot"),
 
-      Base(Proposition("cell", List(LiteralTerm("a")))),
-      Base(Proposition("cell", List(LiteralTerm("b")))),
-      Base(Proposition("cell", List(LiteralTerm("c")))),
-      Base(Proposition("cell", List(LiteralTerm("d")))),
-      Base(Proposition("gold", List(LiteralTerm("a")))),
-      Base(Proposition("gold", List(LiteralTerm("b")))),
-      Base(Proposition("gold", List(LiteralTerm("c")))),
-      Base(Proposition("gold", List(LiteralTerm("d")))),
-      Base(Proposition("gold", List(LiteralTerm("i")))),
-      Base(Proposition("step", List(LiteralTerm("1")))),
-      Conditional(Base(Proposition("step", List(VariableTerm("x")))), List(Relation("succ", List(VariableTerm("y"), VariableTerm("x"))))),
+      Base(Proposition("cell", List("a"))),
+      Base(Proposition("cell", List("b"))),
+      Base(Proposition("cell", List("c"))),
+      Base(Proposition("cell", List("d"))),
+      Base(Proposition("gold", List("a"))),
+      Base(Proposition("gold", List("b"))),
+      Base(Proposition("gold", List("c"))),
+      Base(Proposition("gold", List("d"))),
+      Base(Proposition("gold", List("i"))),
+      Base(Proposition("step", List("1"))),
 
       Input(Role("robot"), Action("move")),
       Input(Role("robot"), Action("grab")),
       Input(Role("robot"), Action("drop")),
 
-      Relation("adjacent", List(LiteralTerm("a"), LiteralTerm("b"))),
-      Relation("adjacent", List(LiteralTerm("b"), LiteralTerm("c"))),
-      Relation("adjacent", List(LiteralTerm("c"), LiteralTerm("d"))),
-      Relation("adjacent", List(LiteralTerm("d"), LiteralTerm("a"))),
+      Relation("adjacent", List("a", "b")),
+      Relation("adjacent", List("b", "c")),
+      Relation("adjacent", List("c", "d")),
+      Relation("adjacent", List("d", "a")),
 
-      Relation("succ", List(LiteralTerm("1"), LiteralTerm("2"))),
-      Relation("succ", List(LiteralTerm("2"), LiteralTerm("3"))),
-      Relation("succ", List(LiteralTerm("3"), LiteralTerm("4"))),
-      Relation("succ", List(LiteralTerm("4"), LiteralTerm("5"))),
-      Relation("succ", List(LiteralTerm("5"), LiteralTerm("6"))),
-      Relation("succ", List(LiteralTerm("6"), LiteralTerm("7"))),
-      Relation("succ", List(LiteralTerm("7"), LiteralTerm("8"))),
-      Relation("succ", List(LiteralTerm("8"), LiteralTerm("9"))),
-      Relation("succ", List(LiteralTerm("9"), LiteralTerm("10")))
+      Relation("succ", List("1", "2")),
+      Relation("succ", List("2", "3")),
+      Relation("succ", List("3", "4")),
+      Relation("succ", List("4", "5")),
+      Relation("succ", List("5", "6")),
+      Relation("succ", List("6", "7")),
+      Relation("succ", List("7", "8")),
+      Relation("succ", List("8", "9")),
+      Relation("succ", List("9", "10"))
     )
   }
 
