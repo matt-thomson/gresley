@@ -130,4 +130,33 @@ class FactSpec extends FlatSpec with ShouldMatchers {
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
+
+  "An init rule" should "substitute values where possible" in {
+    val fact = Init(Relation("test", List("1", VariableTerm("y"), "3")))
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result.fact should be(Relation("test", List("1", "2", "3")))
+  }
+
+  it should "match against a matching fact" in {
+    val partialFact = Init(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Init(Relation("test", List("1", "2", "3")))
+
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not match against a different fact" in {
+    val partialFact = Init(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "not match against a different inner fact" in {
+    val partialFact = Init(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Init(Role("black"))
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
 }

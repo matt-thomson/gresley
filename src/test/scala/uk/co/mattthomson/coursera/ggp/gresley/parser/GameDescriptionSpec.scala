@@ -12,7 +12,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Role("white")
     ))
 
-    description.roles should be (Set("black", "white"))
+    description.roles should be (List("black", "white"))
   }
 
   it should "process inputs correctly" in {
@@ -23,6 +23,19 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     ))
 
     description.inputs("black") should be (Set("up", "down"))
+  }
+
+  it should "process the initial state correctly" in {
+    val description = GameDescription(List(
+      Init(Relation("color", List("black"))),
+      Init(Relation("color", List("white")))
+    ))
+
+    val initialState = description.initialState
+    initialState.facts should be (Set(
+      Relation("color", List("black")),
+      Relation("color", List("white"))
+    ))
   }
 
   it should "process relations correctly" in {
@@ -95,7 +108,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.roles should be (Set("robot"))
+    description.roles should be (List("robot"))
   }
 
   it should "have the correct relations" in {
@@ -120,5 +133,17 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val description = GameDescription(game)
 
     description.inputs("robot") should be (Set("drop", "grab", "move"))
+  }
+
+  it should "have the correct initial state" in {
+    val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
+    val description = GameDescription(game)
+
+    val initialState = description.initialState
+    initialState.facts should be (Set(
+      Relation("cell", List("a")),
+      Relation("gold", List("c")),
+      Relation("step", List("1"))
+    ))
   }
 }

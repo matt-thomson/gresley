@@ -8,7 +8,7 @@ class GdlParser extends RegexParsers {
 
   def game = statement.*
 
-  private def reserved = "role" | "input" | "base"
+  private def reserved = "role" | "input" | "base" | "init"
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
 
@@ -19,12 +19,13 @@ class GdlParser extends RegexParsers {
   private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
 
   private def statement: Parser[Statement] = conditional | fact
-  private def fact: Parser[Fact] = role | relation | base | input
+  private def fact: Parser[Fact] = role | relation | base | input | init
 
   private def role = "(role" ~> name <~ ")" ^^ { case role => Role(role) }
   private def input = "(input" ~> name ~ name <~ ")" ^^ { case role ~ action => Input(Role(role), Action(action)) }
 
   private def base = "(base" ~> fact <~ ")" ^^ { case fact => Base(fact) }
+  private def init = "(init" ~> fact <~ ")" ^^ { case fact => Init(fact) }
 
   private def conditional = "(<=" ~> fact ~ fact.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
 }

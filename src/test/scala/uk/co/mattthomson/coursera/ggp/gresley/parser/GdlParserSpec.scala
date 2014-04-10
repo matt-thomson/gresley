@@ -20,6 +20,10 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     parse("(base (cell a))", Base(Relation("cell", List("a"))))
   }
 
+  it should "parse an initial state" in {
+    parse("(init (cell a))", Init(Relation("cell", List("a"))))
+  }
+
   it should "parse a conditional" in {
     parse("(<= (step ?x) (succ 1 ?x))", Conditional(Relation("step", List(VariableTerm("x"))), List(Relation("succ", List("1", VariableTerm("x"))))))
   }
@@ -48,6 +52,10 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Input(Role("robot"), Action("move")),
       Input(Role("robot"), Action("grab")),
       Input(Role("robot"), Action("drop")),
+
+      Init(Relation("cell", List("a"))),
+      Init(Relation("gold", List("c"))),
+      Init(Relation("step", List("1"))),
 
       Relation("adjacent", List("a", "b")),
       Relation("adjacent", List("b", "c")),
