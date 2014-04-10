@@ -1,13 +1,17 @@
 package uk.co.mattthomson.coursera.ggp.gresley.parser
 
 class GameDescription(private val statements: Seq[Statement]) {
-  lazy val roles = statements.collect { case Role(LiteralTerm(role)) => role }
-
-  lazy val facts = {
+  lazy val constantFacts = {
     val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
     val conditionalFacts = statements.collect { case c: Conditional => c }.toSet
 
     propagateConditionals(simpleFacts, conditionalFacts)
+  }
+
+  lazy val roles = constantFacts.collect { case Role(LiteralTerm(role)) => role }
+
+  def inputs(role: String) = constantFacts.collect {
+    case Input(Role(LiteralTerm(`role`)), Action(LiteralTerm(action))) => action
   }
 
   private def propagateConditionals(simpleFacts: Set[Fact], conditionalFacts: Set[Conditional]): Set[Fact] = {

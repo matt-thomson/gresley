@@ -17,7 +17,14 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     val partialFact = Role(VariableTerm("x"))
     val completeFact = Role("1")
 
-    partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "1")))
+    partialFact.matches(completeFact, Map("y" -> "2")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not allow contradictions" in {
+    val partialFact = Role(VariableTerm("x"))
+    val completeFact = Role("1")
+
+    partialFact.matches(completeFact, Map("x" -> "2")) should be (None)
   }
 
   it should "not match against a different fact" in {
@@ -42,7 +49,7 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     val partialFact = Relation("test", List("1", VariableTerm("y"), "3"))
     val completeFact = Relation("test", List("1", "2", "3"))
 
-    partialFact.matches(completeFact, Map()) should be (Some(Map("y" -> "2")))
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
   }
 
   it should "not match against a relation with a different name" in {
@@ -71,7 +78,7 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     val partialFact = Base(Relation("test", List("1", VariableTerm("y"), "3")))
     val completeFact = Base(Relation("test", List("1", "2", "3")))
 
-    partialFact.matches(completeFact, Map()) should be (Some(Map("y" -> "2")))
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
   }
 
   it should "not match against a different fact" in {
@@ -96,23 +103,30 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     result should be (Input(Role("1"), Action("2")))
   }
 
-  it should "match against a matching input" ignore {
+  it should "match against a matching input" in {
     val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y")))
     val completeFact = Input(Role("black"), Action("up"))
 
     partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "black", "y" -> "up")))
   }
 
-  it should "not match against a non-matching input" ignore {
+  it should "not match against a non-matching input" in {
     val partialFact = Input(Role("white"), Action(VariableTerm("y")))
     val completeFact = Input(Role("black"), Action("up"))
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
-  it should "match against a matching input" ignore {
+  it should "not match against a different fact" in {
     val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y")))
     val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "not match if the parts are inconsistent" in {
+    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("x")))
+    val completeFact = Input(Role("black"), Action("up"))
 
     partialFact.matches(completeFact, Map()) should be (None)
   }

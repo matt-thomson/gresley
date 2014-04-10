@@ -10,7 +10,7 @@ case class Role(private val nameTerm: Term) extends Fact {
   override def substitute(values: Map[String, String]) = Role(nameTerm.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
-    case Role(otherTerm) => nameTerm.matches(otherTerm)
+    case Role(otherTerm) => nameTerm.substitute(values).matches(otherTerm.substitute(values)).map(_ ++ values)
     case _ => None
   }
 }
@@ -38,5 +38,12 @@ case class Action(nameTerm: Term)
 case class Input(role: Role, action: Action) extends Fact {
   override def substitute(values: Map[String, String]) = Input(role.substitute(values), Action(action.nameTerm.substitute(values)))
 
-  override def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]] = ???
+  override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
+    case Input(otherRole, otherAction) =>
+      action.nameTerm.matches(otherAction.nameTerm) match {
+        case Some(v) => role.matches(otherRole, values ++ v)
+        case None => None
+      }
+    case _ => None
+  }
 }

@@ -12,7 +12,17 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Role("white")
     ))
 
-    description.roles should be (List("black", "white"))
+    description.roles should be (Set("black", "white"))
+  }
+
+  it should "process inputs correctly" in {
+    val description = GameDescription(List(
+      Input(Role("black"), Action("up")),
+      Input(Role("white"), Action("left")),
+      Input(Role("black"), Action("down"))
+    ))
+
+    description.inputs("black") should be (Set("up", "down"))
   }
 
   it should "process relations correctly" in {
@@ -24,7 +34,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     )
     val description = GameDescription(facts)
 
-    description.facts should be (facts.toSet)
+    description.constantFacts should be (facts.toSet)
   }
 
   it should "process conditional relations correctly" in {
@@ -36,7 +46,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.facts should be (Set(
+    description.constantFacts should be (Set(
       Relation("row", List("1")),
       Relation("row", List("2")),
       Relation("cell", List("1", "1")),
@@ -54,7 +64,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.facts should be (Set(
+    description.constantFacts should be (Set(
       Role("black"),
       Relation("move", List("black", "1")),
       Relation("row", List("1"))
@@ -72,7 +82,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.facts should be (Set(
+    description.constantFacts should be (Set(
       Relation("next", List("1", "2")),
       Relation("next", List("2", "3")),
       Relation("number", List("1")),
@@ -85,23 +95,30 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.roles should be (List("robot"))
+    description.roles should be (Set("robot"))
   }
 
   it should "have the correct relations" in {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.facts.contains(Relation("succ", List("1", "2"))) should be (true)
-    description.facts.contains(Relation("adjacent", List("a", "b"))) should be (true)
+    description.constantFacts.contains(Relation("succ", List("1", "2"))) should be (true)
+    description.constantFacts.contains(Relation("adjacent", List("a", "b"))) should be (true)
   }
 
   it should "have the correct base relations" in {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.facts.contains(Base(Relation("cell", List("a")))) should be (true)
-    description.facts.contains(Base(Relation("step", List("1")))) should be (true)
-    description.facts.contains(Base(Relation("step", List("10")))) should be (true)
+    description.constantFacts.contains(Base(Relation("cell", List("a")))) should be (true)
+    description.constantFacts.contains(Base(Relation("step", List("1")))) should be (true)
+    description.constantFacts.contains(Base(Relation("step", List("10")))) should be (true)
+  }
+
+  it should "have the correct inputs" in {
+    val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
+    val description = GameDescription(game)
+
+    description.inputs("robot") should be (Set("drop", "grab", "move"))
   }
 }
