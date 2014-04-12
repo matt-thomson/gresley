@@ -27,6 +27,10 @@ class GameProtocolParserSpec extends FlatSpec with ShouldMatchers {
     parse("(play id (left right))", Play("id", Some(List("left", "right"))))
   }
 
+  it should "parse a real id" in {
+    parse("(play kiosk.ticTacToe-1397318430823 NIL)", Play("kiosk.ticTacToe-1397318430823", None))
+  }
+
   it should "parse a stop message" in {
     parse("(stop id (left right))", Stop("id", List("left", "right")))
   }

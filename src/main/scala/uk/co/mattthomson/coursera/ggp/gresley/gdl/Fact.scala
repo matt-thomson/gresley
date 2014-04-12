@@ -35,8 +35,6 @@ case class Base(fact: Fact) extends ConstantFact {
   }
 }
 
-case class Action(nameTerm: Term)
-
 case class Input(role: Role, action: Action) extends ConstantFact {
   override def substitute(values: Map[String, String]) = Input(role.substitute(values), Action(action.nameTerm.substitute(values)))
 

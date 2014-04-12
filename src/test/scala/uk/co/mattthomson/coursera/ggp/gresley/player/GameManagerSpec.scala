@@ -3,15 +3,25 @@ package uk.co.mattthomson.coursera.ggp.gresley.player
 import org.scalatest.{BeforeAndAfter, FlatSpec}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{Actor, Props, ActorSystem}
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.{Abort, Stop, Start, Info}
+import akka.pattern.ask
+import uk.co.mattthomson.coursera.ggp.gresley.protocol._
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameDescription
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.GamesInProgress
-import akka.pattern.ask
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
+import uk.co.mattthomson.coursera.ggp.gresley.protocol.Stop
+import uk.co.mattthomson.coursera.ggp.gresley.protocol.Start
+import uk.co.mattthomson.coursera.ggp.gresley.protocol.Abort
 import akka.util.Timeout
 
 class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
-  val manager = system.actorOf(Props(new GameManager(Props[EchoActor])))
+  val manager = system.actorOf(Props(new Actor {
+    val child = context.actorOf(Props(new GameManager(Props[DummyPlayer])), "child")
+    def receive = {
+      case x if sender == child => testActor forward x
+      case x => child forward x
+    }
+  }))
 
   after {
     import system.dispatcher
@@ -31,6 +41,13 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 
     manager ! GamesInProgress
     expectMsg(List(id))
+  }
+
+  it should "respond to a play message" in {
+    val id = startGame
+
+    manager ! Play(id, None)
+    expectMsg(Action("left"))
   }
 
   it should "respond to a stop message" in {
@@ -67,8 +84,9 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
   }
 }
 
-class EchoActor extends Actor {
+class DummyPlayer extends Actor {
   def receive = {
-    case msg => sender ! msg
+    case g: GameDescription =>
+    case _ => sender ! Action("left")
   }
 }
