@@ -32,6 +32,20 @@ class GameDescription(private val statements: Seq[Statement]) {
     val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f) }
     if (simpleFacts == updatedFacts) simpleFacts else propagateConditionals(updatedFacts, conditionals)
   }
+
+  private def canEqual(other: Any): Boolean = other.isInstanceOf[GameDescription]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: GameDescription =>
+      (that canEqual this) &&
+        statements == that.statements
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(statements)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 object GameDescription {
