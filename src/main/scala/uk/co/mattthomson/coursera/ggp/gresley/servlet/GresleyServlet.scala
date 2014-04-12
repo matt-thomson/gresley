@@ -7,11 +7,11 @@ import akka.pattern.ask
 import uk.co.mattthomson.coursera.ggp.gresley.protocol.GameProtocolMessage
 import akka.util.Timeout
 import scala.concurrent.duration._
-import uk.co.mattthomson.coursera.ggp.gresley.player.GresleyPlayer
+import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager
 
-class GresleyServlet(system: ActorSystem) extends ScalatraServlet with FutureSupport {
+class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraServlet with FutureSupport {
   private val logger = LoggerFactory.getLogger(getClass)
-  private val player = system.actorOf(Props[GresleyPlayer])
+  private val manager = system.actorOf(Props(new GameManager(playerProps)))
 
   implicit val defaultTimeout = Timeout(1.minute)
 
@@ -25,6 +25,6 @@ class GresleyServlet(system: ActorSystem) extends ScalatraServlet with FutureSup
     logger.info(s"Received message: ${request.body}")
     val message = GameProtocolMessage(request.body)
 
-    new AsyncResult { val is = player ? message }
+    new AsyncResult { val is = manager ? message }
   }
 }

@@ -6,7 +6,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.ActorSystem
 
 class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with ScalatraFlatSpec with ShouldMatchers with ImplicitSender {
-  addServlet(new GresleyServlet(system), "/")
+  addServlet(new GresleyServlet(system, null), "/")
 
   "The servlet" should "say hello" in {
     get("/") {
@@ -15,7 +15,7 @@ class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with Sc
     }
   }
 
-  it should "parse protocol messages and send to the player" in {
+  it should "parse protocol messages and send to the manager" in {
     post("/", body = "(info)") {
       status should equal (200)
       body should be ("ready")
