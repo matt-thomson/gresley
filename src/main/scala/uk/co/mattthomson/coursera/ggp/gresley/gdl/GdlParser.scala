@@ -1,4 +1,4 @@
-package uk.co.mattthomson.coursera.ggp.gresley.parser
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.matching.Regex

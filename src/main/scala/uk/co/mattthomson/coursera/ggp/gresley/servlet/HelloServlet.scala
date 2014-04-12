@@ -6,4 +6,8 @@ class HelloServlet extends ScalatraServlet {
   get("/") {
     "Hello, my name is Gresley."
   }
+
+  post("/") {
+    println(request.body)
+  }
 }

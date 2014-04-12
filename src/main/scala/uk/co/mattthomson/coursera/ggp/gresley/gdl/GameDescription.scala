@@ -1,4 +1,4 @@
-package uk.co.mattthomson.coursera.ggp.gresley.parser
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 class GameDescription(private val statements: Seq[Statement]) {
   lazy val constantFacts = {

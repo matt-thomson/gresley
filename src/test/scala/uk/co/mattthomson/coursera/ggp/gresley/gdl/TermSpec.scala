@@ -1,8 +1,8 @@
-package uk.co.mattthomson.coursera.ggp.gresley.parser
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import uk.co.mattthomson.coursera.ggp.gresley.parser.Term._
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Term._
 
 class TermSpec extends FlatSpec with ShouldMatchers {
   "A literal term" should "be constructable from a string" in {

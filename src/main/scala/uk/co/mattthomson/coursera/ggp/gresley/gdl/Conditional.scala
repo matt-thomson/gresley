@@ -1,4 +1,4 @@
-package uk.co.mattthomson.coursera.ggp.gresley.parser
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 case class Conditional(conclusion: Fact, conditions: Seq[Fact]) extends Statement {
   def propagate(facts: Set[Fact]): Set[Fact] = {

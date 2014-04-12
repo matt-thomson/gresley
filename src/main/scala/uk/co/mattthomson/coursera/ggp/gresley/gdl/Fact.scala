@@ -1,4 +1,4 @@
-package uk.co.mattthomson.coursera.ggp.gresley.parser
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 trait Fact extends Statement {
   def substitute(values: Map[String, String]): Fact
