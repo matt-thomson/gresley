@@ -55,7 +55,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Relation("row", List("1")),
       Relation("row", List("2")),
       Conditional(Relation("cell", List("1", VariableTerm("x"))), List(
-        Relation("row", List(VariableTerm("x")))
+        FactCondition(Relation("row", List(VariableTerm("x"))))
       ))
     ))
 
@@ -72,8 +72,8 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Role("black"),
       Relation("move", List("black", "1")),
       Conditional(Relation("row", List(VariableTerm("y"))), List(
-        Role(VariableTerm("x")),
-        Relation("move", List(VariableTerm("x"), VariableTerm("y")))
+        FactCondition(Role(VariableTerm("x"))),
+        FactCondition(Relation("move", List(VariableTerm("x"), VariableTerm("y"))))
       ))
     ))
 
@@ -90,8 +90,8 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Relation("next", List("2", "3")),
       Relation("number", List("1")),
       Conditional(Relation("number", List(VariableTerm("y"))), List(
-        Relation("number", List(VariableTerm("x"))),
-        Relation("next", List(VariableTerm("x"), VariableTerm("y")))
+        FactCondition(Relation("number", List(VariableTerm("x")))),
+        FactCondition(Relation("next", List(VariableTerm("x"), VariableTerm("y"))))
       ))
     ))
 

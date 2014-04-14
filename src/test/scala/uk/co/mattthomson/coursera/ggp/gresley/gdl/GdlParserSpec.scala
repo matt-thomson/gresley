@@ -25,7 +25,10 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse a conditional" in {
-    parse("(<= (step ?x) (succ 1 ?x))", Conditional(Relation("step", List(VariableTerm("x"))), List(Relation("succ", List("1", VariableTerm("x"))))))
+    parse("(<= (step ?x) (succ 1 ?x))", Conditional(
+      Relation("step", List(VariableTerm("x"))),
+      List(FactCondition(Relation("succ", List("1", VariableTerm("x")))))
+    ))
   }
 
   it should "ignore a comment" in {
@@ -47,7 +50,7 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Base(Relation("gold", List("d"))),
       Base(Relation("gold", List("i"))),
       Base(Relation("step", List("1"))),
-      Conditional(Base(Relation("step", List(VariableTerm("x")))), List(Relation("succ", List(VariableTerm("y"), VariableTerm("x"))))),
+      Conditional(Base(Relation("step", List(VariableTerm("x")))), List(FactCondition(Relation("succ", List(VariableTerm("y"), VariableTerm("x")))))),
 
       Input(Role("robot"), Action("move")),
       Input(Role("robot"), Action("grab")),

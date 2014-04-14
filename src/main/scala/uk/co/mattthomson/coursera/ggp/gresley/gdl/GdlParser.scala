@@ -10,7 +10,7 @@ class GdlParser extends RegexParsers {
 
   def game = statement.*
 
-  private def reserved = "role" | "input" | "base" | "init"
+  private def reserved = "role" | "input" | "base" | "init" | "legal"
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
   private def id: Parser[String] = """[a-zA-Z0-9\.\-]+""".r
@@ -19,18 +19,20 @@ class GdlParser extends RegexParsers {
   private def variableTerm = "?" ~> name ^^ { name => VariableTerm(name) }
   private def literalTerm = name ^^ { name => LiteralTerm(name) }
 
-  private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
-
   private def statement: Parser[Statement] = conditional | fact
   private def fact: Parser[Fact] = role | relation | base | input | init
 
   private def role = """\(\s*role""".r ~> name <~ ")" ^^ { role => Role(role) }
+  private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
   private def input = """\(\s*input""".r ~> name ~ name <~ ")" ^^ { case role ~ action => Input(Role(role), Action(action)) }
-
   private def base = """\(\s*base""".r ~> fact <~ ")" ^^ { fact => Base(fact) }
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
 
-  private def conditional = """\(\s*<=""".r ~> fact ~ fact.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
+  private def condition: Parser[Condition] = factCondition
+
+  private def factCondition = fact ^^ { fact => FactCondition(fact) }
+
+  private def conditional = """\(\s*<=""".r ~> fact ~ condition.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
 
   def message = info | start | play | stop | abort
 
