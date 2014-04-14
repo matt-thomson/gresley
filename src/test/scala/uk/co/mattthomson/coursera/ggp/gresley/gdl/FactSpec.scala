@@ -66,6 +66,38 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
+  "An action" should "substitute values where possible" in {
+    val fact = Action("test", List(VariableTerm("x"), "a", VariableTerm("q"), VariableTerm("z")))
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result.name should be ("test")
+
+    val expectedTerms: List[Term] = List("1", "a", VariableTerm("q"), "3")
+    result.terms should be (expectedTerms)
+  }
+
+  it should "match terms to values" in {
+    val partialFact = Action("test", List("1", VariableTerm("y"), "3"))
+    val completeFact = Action("test", List("1", "2", "3"))
+
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not match against an action with a different name" in {
+    val partialFact = Action("test", List("1", VariableTerm("y"), "3"))
+    val completeFact = Action("other", List("1", "2", "3"))
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "not match against a different fact" in {
+    val partialFact = Action("test", List("1", VariableTerm("y"), "3"))
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
   "A base rule" should "substitute values where possible" in {
     val fact = Base(Relation("test", List("1", VariableTerm("y"), "3")))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
@@ -96,36 +128,36 @@ class FactSpec extends FlatSpec with ShouldMatchers {
   }
 
   "An input" should "substitute values where possible" in {
-    val fact = Input(Role(VariableTerm("x")), Action(VariableTerm("y"), List(VariableTerm("z"))))
+    val fact = Input(Role(VariableTerm("x")), Action("robot", List(VariableTerm("z"))))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
 
     val result = fact.substitute(values)
-    result should be (Input(Role("1"), Action("2", List("3"))))
+    result should be (Input(Role("1"), Action("robot", List("3"))))
   }
 
   it should "match against a matching input" in {
-    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y"), List("1")))
-    val completeFact = Input(Role("black"), Action("up", List("1")))
+    val partialFact = Input(Role(VariableTerm("x")), Action("robot", List(VariableTerm("y"))))
+    val completeFact = Input(Role("black"), Action("robot", List("up")))
 
     partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "black", "y" -> "up")))
   }
 
   it should "not match against a non-matching input" in {
-    val partialFact = Input(Role("white"), Action(VariableTerm("y"), Nil))
+    val partialFact = Input(Role("white"), Action("robot", Nil))
     val completeFact = Input(Role("black"), Action("up", Nil))
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
   it should "not match against a different fact" in {
-    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("y"), Nil))
+    val partialFact = Input(Role(VariableTerm("x")), Action("robot", Nil))
     val completeFact = Role("black")
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
   it should "not match if the parts are inconsistent" in {
-    val partialFact = Input(Role(VariableTerm("x")), Action(VariableTerm("x"), Nil))
+    val partialFact = Input(Role(VariableTerm("x")), Action("robot", List(VariableTerm("x"))))
     val completeFact = Input(Role("black"), Action("up", Nil))
 
     partialFact.matches(completeFact, Map()) should be (None)
@@ -161,36 +193,36 @@ class FactSpec extends FlatSpec with ShouldMatchers {
   }
 
   "A legal input" should "substitute values where possible" in {
-    val fact = Legal(Role(VariableTerm("x")), Action(VariableTerm("y"), List(VariableTerm("z"))))
+    val fact = Legal(Role(VariableTerm("x")), Action("robot", List(VariableTerm("z"))))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
 
     val result = fact.substitute(values)
-    result should be (Legal(Role("1"), Action("2", List("3"))))
+    result should be (Legal(Role("1"), Action("robot", List("3"))))
   }
 
   it should "match against a matching legal" in {
-    val partialFact = Legal(Role(VariableTerm("x")), Action(VariableTerm("y"), List("1")))
-    val completeFact = Legal(Role("black"), Action("up", List("1")))
+    val partialFact = Legal(Role(VariableTerm("x")), Action("robot", List(VariableTerm("y"))))
+    val completeFact = Legal(Role("black"), Action("robot", List("up")))
 
     partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "black", "y" -> "up")))
   }
 
   it should "not match against a non-matching legal" in {
-    val partialFact = Legal(Role("white"), Action(VariableTerm("y"), Nil))
+    val partialFact = Legal(Role("white"), Action("robot", Nil))
     val completeFact = Legal(Role("black"), Action("up", Nil))
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
   it should "not match against a different fact" in {
-    val partialFact = Legal(Role(VariableTerm("x")), Action(VariableTerm("y"), Nil))
+    val partialFact = Legal(Role(VariableTerm("x")), Action("robot", Nil))
     val completeFact = Role("black")
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
   it should "not match if the parts are inconsistent" in {
-    val partialFact = Legal(Role(VariableTerm("x")), Action(VariableTerm("x"), Nil))
+    val partialFact = Legal(Role(VariableTerm("x")), Action("robot", List(VariableTerm("x"))))
     val completeFact = Legal(Role("black"), Action("up", Nil))
 
     partialFact.matches(completeFact, Map()) should be (None)
