@@ -9,6 +9,6 @@ class LegalPlayer extends Actor {
   }
 
   def handle(game: GameDescription, state: GameState): Receive = {
-    case _ => sender ! Action("left")
+    case _ => sender ! Action("left", Nil)
   }
 }

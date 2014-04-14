@@ -35,12 +35,24 @@ case class Base(fact: Fact) extends ConstantFact {
   }
 }
 
+case class Action(name: Term, terms: Seq[Term]) extends Fact {
+  override def substitute(values: Map[String, String]) = Action(name.substitute(values), terms.map(_.substitute(values)))
+
+  override def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]] = completeFact match {
+    case Action(otherName, otherTerms) =>
+      name.matches(otherName) match {
+        case Some(v) => Term.matchTerms(terms, otherTerms, values ++ v)
+        case None => None
+      }
+  }
+}
+
 case class Input(role: Role, action: Action) extends ConstantFact {
-  override def substitute(values: Map[String, String]) = Input(role.substitute(values), Action(action.nameTerm.substitute(values)))
+  override def substitute(values: Map[String, String]) = Input(role.substitute(values), action.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
     case Input(otherRole, otherAction) =>
-      action.nameTerm.matches(otherAction.nameTerm) match {
+      action.matches(otherAction, values) match {
         case Some(v) => role.matches(otherRole, values ++ v)
         case None => None
       }
@@ -58,11 +70,11 @@ case class Init(fact: Fact) extends Fact {
 }
 
 case class Legal(role: Role, action: Action) extends Fact {
-  override def substitute(values: Map[String, String]) = Legal(role.substitute(values), Action(action.nameTerm.substitute(values)))
+  override def substitute(values: Map[String, String]) = Legal(role.substitute(values), action.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
     case Legal(otherRole, otherAction) =>
-      action.nameTerm.matches(otherAction.nameTerm) match {
+      action.matches(otherAction, values) match {
         case Some(v) => role.matches(otherRole, values ++ v)
         case None => None
       }

@@ -13,7 +13,11 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse an input" in {
-    parse("(input robot move)", Input(Role("robot"), Action("move")))
+    parse("(input robot move)", Input(Role("robot"), Action("move", Nil)))
+  }
+
+  it should "parse a complex input" in {
+    parse("(input robot (cell 1 2))", Input(Role("robot"), Action("cell", List("1", "2"))))
   }
 
   it should "parse a base rule" in {
@@ -52,9 +56,9 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Base(Relation("step", List("1"))),
       Conditional(Base(Relation("step", List(VariableTerm("x")))), List(FactCondition(Relation("succ", List(VariableTerm("y"), VariableTerm("x")))))),
 
-      Input(Role("robot"), Action("move")),
-      Input(Role("robot"), Action("grab")),
-      Input(Role("robot"), Action("drop")),
+      Input(Role("robot"), Action("move", Nil)),
+      Input(Role("robot"), Action("grab", Nil)),
+      Input(Role("robot"), Action("drop", Nil)),
 
       Init(Relation("cell", List("a"))),
       Init(Relation("gold", List("c"))),
@@ -75,12 +79,12 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Relation("succ", List("8", "9")),
       Relation("succ", List("9", "10")),
 
-      Conditional(Legal(Role("robot"), Action("move")), List(FactCondition(Relation("succ", List("1", "2"))))),
-      Conditional(Legal(Role("robot"), Action("grab")), List(
+      Conditional(Legal(Role("robot"), Action("move", Nil)), List(FactCondition(Relation("succ", List("1", "2"))))),
+      Conditional(Legal(Role("robot"), Action("grab", Nil)), List(
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("gold", List(VariableTerm("x"))))
       )),
-      Conditional(Legal(Role("robot"), Action("drop")), List(
+      Conditional(Legal(Role("robot"), Action("drop", Nil)), List(
         StateCondition(Relation("gold", List("i")))
       ))
     )

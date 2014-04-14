@@ -45,7 +45,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
     val id = startGame
 
     manager ! Play(id, None)
-    expectMsg(Action("left"))
+    expectMsg(Action("left", Nil))
   }
 
   it should "respond to a stop message" in {
@@ -85,6 +85,6 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 class DummyPlayer extends Actor {
   def receive = {
     case g: GameDescription =>
-    case _ => sender ! Action("left")
+    case _ => sender ! Action("left", Nil)
   }
 }

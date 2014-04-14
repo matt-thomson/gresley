@@ -22,12 +22,16 @@ class GdlParser extends RegexParsers {
   private def statement: Parser[Statement] = conditional | fact
   private def fact: Parser[Fact] = role | relation | base | input | init | legal
 
+  private def singleAction = name ^^ { name => Action(name, Nil) }
+  private def multipleAction = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Action(name, terms) }
+  private def action = singleAction | multipleAction
+
   private def role = """\(\s*role""".r ~> name <~ ")" ^^ { role => Role(role) }
   private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
-  private def input = """\(\s*input""".r ~> name ~ name <~ ")" ^^ { case role ~ action => Input(Role(role), Action(action)) }
+  private def input = """\(\s*input""".r ~> name ~ action <~ ")" ^^ { case role ~ action => Input(Role(role), action) }
   private def base = """\(\s*base""".r ~> fact <~ ")" ^^ { fact => Base(fact) }
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
-  private def legal = """\(\s*legal""".r ~> name ~ name <~ ")" ^^ { case role ~ fact => Legal(Role(role), Action(fact)) }
+  private def legal = """\(\s*legal""".r ~> name ~ action <~ ")" ^^ { case role ~ action => Legal(Role(role), action) }
 
   private def condition: Parser[Condition] = factCondition | stateCondition
 

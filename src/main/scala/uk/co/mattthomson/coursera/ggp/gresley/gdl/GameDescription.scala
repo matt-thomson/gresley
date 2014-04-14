@@ -25,7 +25,7 @@ class GameDescription(private val statements: Seq[Statement]) {
   }
 
   def inputs(role: String) = constantFacts.collect {
-    case Input(Role(LiteralTerm(`role`)), Action(LiteralTerm(action))) => action
+    case Input(Role(LiteralTerm(`role`)), action) => action
   }
 
   private def propagateConditionals(simpleFacts: Set[Fact], conditionals: Set[Conditional]): Set[Fact] = {

@@ -17,12 +17,15 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
 
   it should "process inputs correctly" in {
     val description = GameDescription(List(
-      Input(Role("black"), Action("up")),
-      Input(Role("white"), Action("left")),
-      Input(Role("black"), Action("down"))
+      Input(Role("black"), Action("up", Nil)),
+      Input(Role("white"), Action("left", Nil)),
+      Input(Role("black"), Action("down", Nil))
     ))
 
-    description.inputs("black") should be (Set("up", "down"))
+    description.inputs("black") should be (Set(
+      Action("up", Nil),
+      Action("down", Nil)
+    ))
   }
 
   it should "process the initial state correctly" in {
@@ -132,7 +135,11 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.inputs("robot") should be (Set("drop", "grab", "move"))
+    description.inputs("robot") should be (Set(
+      Action("drop", Nil),
+      Action("grab", Nil),
+      Action("move", Nil)
+    ))
   }
 
   it should "have the correct initial state" in {
