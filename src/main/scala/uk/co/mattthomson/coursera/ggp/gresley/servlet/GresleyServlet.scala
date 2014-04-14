@@ -8,6 +8,8 @@ import _root_.akka.util.Timeout
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameProtocolMessage
+import javax.servlet.http.HttpServletRequest
+import org.scalatra.util.MultiMap
 
 class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraServlet with FutureSupport with CorsSupport {
   private val logger = LoggerFactory.getLogger(getClass)
@@ -17,9 +19,8 @@ class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraSe
 
   override protected implicit def executor = system.dispatcher
 
-
   options("/*"){
-    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
+    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"))
   }
 
   get("/") {
@@ -27,20 +28,17 @@ class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraSe
   }
 
   post("/") {
-    val body = request.contentType match {
-      case Some("application/x-www-form-urlencoded") => request.getParameterNames.nextElement()
-      case _ => request.body
-    }
+    logger.info(s"Received message: ${request.body}")
 
-    logger.info(s"Received message: $body")
-
-    if (body.isEmpty) NoContent()
+    if (request.body.isEmpty) NoContent()
     else {
-      val message = GameProtocolMessage(body)
+      val message = GameProtocolMessage(request.body)
 
       new AsyncResult {
         val is = manager ? message
       }
     }
   }
+
+  override def multiParams(implicit request: HttpServletRequest) = new MultiMap
 }
