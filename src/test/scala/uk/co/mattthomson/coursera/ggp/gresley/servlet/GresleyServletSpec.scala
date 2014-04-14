@@ -21,4 +21,10 @@ class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with Sc
       body should be ("ready")
     }
   }
+
+  it should "handle empty messages" in {
+    post("/") {
+      status should equal (200)
+    }
+  }
 }

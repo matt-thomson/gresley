@@ -1,6 +1,6 @@
 package uk.co.mattthomson.coursera.ggp.gresley.servlet
 
-import org.scalatra.{AsyncResult, FutureSupport, ScalatraServlet}
+import org.scalatra.{NoContent, AsyncResult, FutureSupport, ScalatraServlet}
 import org.slf4j.LoggerFactory
 import akka.actor.{Props, ActorSystem}
 import akka.pattern.ask
@@ -23,8 +23,14 @@ class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraSe
 
   post("/") {
     logger.info(s"Received message: ${request.body}")
-    val message = GameProtocolMessage(request.body)
 
-    new AsyncResult { val is = manager ? message }
+    if (request.body.isEmpty) NoContent
+    else {
+      val message = GameProtocolMessage(request.body)
+
+      new AsyncResult {
+        val is = manager ? message
+      }
+    }
   }
 }
