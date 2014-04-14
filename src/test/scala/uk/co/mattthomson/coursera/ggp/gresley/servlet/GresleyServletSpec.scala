@@ -22,9 +22,16 @@ class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with Sc
     }
   }
 
+  it should "cope with messages in form params" in {
+    post("/", body = "(info)", headers = Map("Content-Type" -> "application/x-www-form-urlencoded")) {
+      status should equal (200)
+      body should be ("ready")
+    }
+  }
+
   it should "handle empty messages" in {
     post("/") {
-      status should equal (200)
+      status should equal (204)
     }
   }
 }

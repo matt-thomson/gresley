@@ -17,6 +17,7 @@ class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraSe
 
   override protected implicit def executor = system.dispatcher
 
+
   options("/*"){
     response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
   }
@@ -26,11 +27,16 @@ class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraSe
   }
 
   post("/") {
-    logger.info(s"Received message: ${request.body}")
+    val body = request.contentType match {
+      case Some("application/x-www-form-urlencoded") => request.getParameterNames.nextElement()
+      case _ => request.body
+    }
 
-    if (request.body.isEmpty) NoContent
+    logger.info(s"Received message: $body")
+
+    if (body.isEmpty) NoContent()
     else {
-      val message = GameProtocolMessage(request.body)
+      val message = GameProtocolMessage(body)
 
       new AsyncResult {
         val is = manager ? message
