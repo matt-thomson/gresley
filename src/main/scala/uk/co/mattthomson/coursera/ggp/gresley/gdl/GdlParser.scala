@@ -20,17 +20,19 @@ class GdlParser extends RegexParsers {
   private def literalTerm = name ^^ { name => LiteralTerm(name) }
 
   private def statement: Parser[Statement] = conditional | fact
-  private def fact: Parser[Fact] = role | relation | base | input | init
+  private def fact: Parser[Fact] = role | relation | base | input | init | legal
 
   private def role = """\(\s*role""".r ~> name <~ ")" ^^ { role => Role(role) }
   private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
   private def input = """\(\s*input""".r ~> name ~ name <~ ")" ^^ { case role ~ action => Input(Role(role), Action(action)) }
   private def base = """\(\s*base""".r ~> fact <~ ")" ^^ { fact => Base(fact) }
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
+  private def legal = """\(\s*legal""".r ~> name ~ name <~ ")" ^^ { case role ~ fact => Legal(Role(role), Action(fact)) }
 
-  private def condition: Parser[Condition] = factCondition
+  private def condition: Parser[Condition] = factCondition | stateCondition
 
   private def factCondition = fact ^^ { fact => FactCondition(fact) }
+  private def stateCondition = """\(\s*true""".r ~> fact <~ ")" ^^ { fact => StateCondition(fact) }
 
   private def conditional = """\(\s*<=""".r ~> fact ~ condition.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
 

@@ -96,15 +96,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;  (<= (legal robot move)
-;      (succ 1 2))
+  (<= (legal robot move)
+      (succ 1 2))
 
-;  (<= (legal robot grab)
-;      (true (cell ?x))
-;      (true (gold ?x)))
+  (<= (legal robot grab)
+      (true (cell ?x))
+      (true (gold ?x)))
 
-;  (<= (legal robot drop)
-;      (true (gold i)))
+  (<= (legal robot drop)
+      (true (gold i)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

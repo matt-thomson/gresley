@@ -56,3 +56,16 @@ case class Init(fact: Fact) extends Fact {
     case _ => None
   }
 }
+
+case class Legal(role: Role, action: Action) extends Fact {
+  override def substitute(values: Map[String, String]) = Legal(role.substitute(values), Action(action.nameTerm.substitute(values)))
+
+  override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
+    case Legal(otherRole, otherAction) =>
+      action.nameTerm.matches(otherAction.nameTerm) match {
+        case Some(v) => role.matches(otherRole, values ++ v)
+        case None => None
+      }
+    case _ => None
+  }
+}

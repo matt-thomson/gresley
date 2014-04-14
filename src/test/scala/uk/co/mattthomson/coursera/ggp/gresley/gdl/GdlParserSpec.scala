@@ -73,7 +73,16 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Relation("succ", List("6", "7")),
       Relation("succ", List("7", "8")),
       Relation("succ", List("8", "9")),
-      Relation("succ", List("9", "10"))
+      Relation("succ", List("9", "10")),
+
+      Conditional(Legal(Role("robot"), Action("move")), List(FactCondition(Relation("succ", List("1", "2"))))),
+      Conditional(Legal(Role("robot"), Action("grab")), List(
+        StateCondition(Relation("cell", List(VariableTerm("x")))),
+        StateCondition(Relation("gold", List(VariableTerm("x"))))
+      )),
+      Conditional(Legal(Role("robot"), Action("drop")), List(
+        StateCondition(Relation("gold", List("i")))
+      ))
     )
   }
 

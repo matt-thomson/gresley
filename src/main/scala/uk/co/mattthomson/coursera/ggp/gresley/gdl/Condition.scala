@@ -7,3 +7,7 @@ trait Condition {
 case class FactCondition(fact: Fact) extends Condition {
   override def matches(completeFact: Fact, values: Map[String, String]) = fact.matches(completeFact, values)
 }
+
+case class StateCondition(fact: Fact) extends Condition {
+  override def matches(completeFact: Fact, values: Map[String, String]) = ???
+}
