@@ -3,20 +3,22 @@ package uk.co.mattthomson.coursera.ggp.gresley.protocol
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import scala.concurrent.duration._
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.{Role, GameDescription}
+import uk.co.mattthomson.coursera.ggp.gresley.gdl._
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Role
+import scala.Some
 
 class GameProtocolParserSpec extends FlatSpec with ShouldMatchers {
-  private val parser = new GameProtocolParser
+  private val parser = new GdlParser
 
   "The parser" should "parse an info message" in {
     parse("(info)", Info)
   }
 
   it should "parse a start message" in {
-    val game = new GameDescription(List(Role("white"), Role("black")))
+    val game = new GameDescription(List(Role("white"), Base(Relation("cell", List("a")))))
     val start = Start("id", "white", game, 1.second, 2.seconds)
 
-    parse("(start id white ((role white) (role black)) 1 2)", start)
+    parse("(start id white ((role white) (base (cell a))) 1 2)", start)
   }
 
   it should "parse an initial play message" in {

@@ -6,13 +6,12 @@ import akka.actor.{Actor, Props, ActorSystem}
 import akka.pattern.ask
 import uk.co.mattthomson.coursera.ggp.gresley.protocol._
 import scala.concurrent.duration._
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameDescription
+import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.GamesInProgress
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Stop
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Start
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Abort
 import akka.util.Timeout
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
 
 class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
   val manager = system.actorOf(Props(new Actor {

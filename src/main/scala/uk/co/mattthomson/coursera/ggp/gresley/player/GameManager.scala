@@ -1,12 +1,12 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import akka.actor.{ActorRef, Props, Actor}
-import uk.co.mattthomson.coursera.ggp.gresley.protocol._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.GamesInProgress
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Start
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Stop
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.Abort
+import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.Abort
 
 class GameManager(playerProps: Props) extends Actor {
   override def receive: Receive = handle(Map())

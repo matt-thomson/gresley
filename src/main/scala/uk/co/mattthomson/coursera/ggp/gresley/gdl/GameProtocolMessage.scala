@@ -1,6 +1,5 @@
-package uk.co.mattthomson.coursera.ggp.gresley.protocol
+package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameDescription
 import scala.concurrent.duration.FiniteDuration
 
 trait GameProtocolMessage {
@@ -22,7 +21,7 @@ case class Abort(id: String) extends GameProtocolMessage
 
 object GameProtocolMessage {
   def apply(message: String) = {
-    val parser = new GameProtocolParser
+    val parser = new GdlParser
     parser.parseAll(parser.message, message).get
   }
 }

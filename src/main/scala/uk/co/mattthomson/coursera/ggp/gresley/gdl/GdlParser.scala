@@ -1,7 +1,9 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
+import scala.concurrent.duration._
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.matching.Regex
+import scala.Some
 
 class GdlParser extends RegexParsers {
   override protected val whiteSpace: Regex = """(\s|;.*)+""".r
@@ -11,6 +13,7 @@ class GdlParser extends RegexParsers {
   private def reserved = "role" | "input" | "base" | "init"
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
+  private def id: Parser[String] = """[a-zA-Z0-9\.\-]+""".r
 
   private def term = variableTerm | literalTerm
   private def variableTerm = "?" ~> name ^^ { name => VariableTerm(name) }
@@ -28,5 +31,21 @@ class GdlParser extends RegexParsers {
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
 
   private def conditional = """\(\s*<=""".r ~> fact ~ fact.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
+
+  def message = info | start | play | stop | abort
+
+  private def clock = "[0-9]+".r ^^ { _.toInt.seconds }
+
+  private def nilMove = """(?i)nil""".r ^^^ None
+  private def someMoves = "(" ~> name.* <~ ")" ^^ { l => Some(l) }
+  private def moves = nilMove ||| someMoves
+
+  private def info = """(?i)\(\s*info\s*\)""".r ^^^ Info
+  private def start = """(?i)\(\s*start""".r ~> id ~ name ~ "(" ~ game ~ ")" ~ clock ~ clock <~ ")" ^^ {
+    case id ~ role ~ _ ~ game ~ _ ~ startClock ~ playClock => Start(id, role, new GameDescription(game), startClock, playClock)
+  }
+  private def play = """(?i)\(\s*play""".r ~> id ~ moves <~ ")" ^^ { case id ~ moves => Play(id, moves) }
+  private def stop = """(?i)\(\s*stop""".r ~> id ~ someMoves <~ ")" ^^ { case id ~ Some(moves) => Stop(id, moves) }
+  private def abort = """(?i)\(\s*abort""".r ~> id  <~ ")" ^^ Abort
 }
 

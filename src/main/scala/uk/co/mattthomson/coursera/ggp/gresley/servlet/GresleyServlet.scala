@@ -4,10 +4,10 @@ import org.scalatra.{AsyncResult, FutureSupport, ScalatraServlet}
 import org.slf4j.LoggerFactory
 import akka.actor.{Props, ActorSystem}
 import akka.pattern.ask
-import uk.co.mattthomson.coursera.ggp.gresley.protocol.GameProtocolMessage
 import akka.util.Timeout
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameProtocolMessage
 
 class GresleyServlet(system: ActorSystem, playerProps: Props) extends ScalatraServlet with FutureSupport {
   private val logger = LoggerFactory.getLogger(getClass)
