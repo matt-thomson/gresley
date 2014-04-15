@@ -35,10 +35,10 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     ))
 
     val initialState = description.initialState
-    initialState.facts should be (Set(
+    initialState should be (new GameState(Set(
       Relation("color", List("black")),
       Relation("color", List("white"))
-    ))
+    )))
   }
 
   it should "process relations correctly" in {
@@ -147,10 +147,10 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val description = GameDescription(game)
 
     val initialState = description.initialState
-    initialState.facts should be (Set(
+    initialState should be (new GameState(Set(
       Relation("cell", List("a")),
       Relation("gold", List("c")),
       Relation("step", List("1"))
-    ))
+    )))
   }
 }

@@ -28,6 +28,8 @@ class GameDescription(private val statements: Seq[Statement]) {
     case Input(Role(LiteralTerm(`role`)), action) => action
   }
 
+  def legalActions(role: String, state: GameState): Set[Action] = ???
+
   private def propagateConditionals(simpleFacts: Set[Fact], conditionals: Set[Conditional]): Set[Fact] = {
     val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f) }
     if (simpleFacts == updatedFacts) simpleFacts else propagateConditionals(updatedFacts, conditionals)
