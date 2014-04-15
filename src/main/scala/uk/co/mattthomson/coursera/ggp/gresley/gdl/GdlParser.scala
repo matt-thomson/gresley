@@ -49,7 +49,7 @@ class GdlParser extends RegexParsers {
   private def clock = "[0-9]+".r ^^ { _.toInt.seconds }
 
   private def nilMove = """(?i)nil""".r ^^^ None
-  private def someMoves = "(" ~> name.* <~ ")" ^^ { l => Some(l) }
+  private def someMoves = "(" ~> action.* <~ ")" ^^ { l => Some(l) }
   private def moves = nilMove ||| someMoves
 
   private def info = """(?i)\(\s*info\s*\)""".r ^^^ Info

@@ -13,9 +13,9 @@ case class Start(id: String,
                  startClock: FiniteDuration,
                  playClock: FiniteDuration) extends GameProtocolMessage
 
-case class Play(id: String, moves: Option[Seq[String]]) extends GameProtocolMessage
+case class Play(id: String, moves: Option[Seq[Action]]) extends GameProtocolMessage
 
-case class Stop(id: String, moves: Seq[String]) extends GameProtocolMessage
+case class Stop(id: String, moves: Seq[Action]) extends GameProtocolMessage
 
 case class Abort(id: String) extends GameProtocolMessage
 

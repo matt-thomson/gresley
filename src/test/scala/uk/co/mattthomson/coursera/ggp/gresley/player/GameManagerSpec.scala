@@ -45,7 +45,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
   it should "respond to a stop message" in {
     val id = startGame
 
-    manager ! Stop(id, List("left", "right"))
+    manager ! Stop(id, List(Action("left", Nil), Action("right", Nil)))
     expectMsg("done")
 
     manager ! GamesInProgress

@@ -26,7 +26,11 @@ class GameProtocolParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse a play message with moves" in {
-    parse("(play id (left right))", Play("id", Some(List("left", "right"))))
+    parse("(play id (left right))", Play("id", Some(List(Action("left", Nil), Action("right", Nil)))))
+  }
+
+  it should "parse a play message with complex moves" in {
+    parse("(play id ((left 1) (right 2)))", Play("id", Some(List(Action("left", List("1")), Action("right", List("2"))))))
   }
 
   it should "parse a real id" in {
@@ -34,7 +38,7 @@ class GameProtocolParserSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "parse a stop message" in {
-    parse("(stop id (left right))", Stop("id", List("left", "right")))
+    parse("(stop id (left right))", Stop("id", List(Action("left", Nil), Action("right", Nil))))
   }
 
   it should "parse an abort message" in {

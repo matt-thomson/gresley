@@ -36,7 +36,7 @@ class GameManager(playerProps: Props) extends Actor {
 }
 
 object GameManager {
-  case class SelectMove(moves: Option[Seq[String]], source: ActorRef)
+  case class SelectMove(moves: Option[Seq[Action]], source: ActorRef)
 
   case object GamesInProgress
 }
