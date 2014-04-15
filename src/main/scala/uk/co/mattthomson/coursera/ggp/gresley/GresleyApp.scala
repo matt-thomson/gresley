@@ -13,7 +13,7 @@ object GresleyApp extends App {
   context.addServlet(classOf[DefaultServlet], "/")
   context.setInitParameter(ScalatraListener.LifeCycleKey, classOf[GresleyBootstrap].getName)
 
-  val port = if(System.getenv("PORT") != null) System.getenv("PORT").toInt else 8080
+  val port = if(System.getenv("PORT") != null) System.getenv("PORT").toInt else 5000
 
   val server = new Server(port)
   server.setHandler(context)
