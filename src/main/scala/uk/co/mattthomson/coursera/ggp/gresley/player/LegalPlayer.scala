@@ -2,7 +2,7 @@ package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import akka.actor.Actor
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameState, GameDescription}
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{NewGame, SelectMove}
+import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{PlayersMoved, NewGame, SelectMove}
 
 class LegalPlayer extends Actor {
   override def receive = {
@@ -10,6 +10,7 @@ class LegalPlayer extends Actor {
   }
 
   def handle(game: GameDescription, role: String, state: GameState): Receive = {
-    case SelectMove(_, source) => source ! state.legalActions(role).head
+    case PlayersMoved(moves) => handle(game, role, state.update(moves))
+    case SelectMove(source) => source ! state.legalActions(role).head
   }
 }

@@ -58,4 +58,38 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Action("move", List("2", "1"))
     ))
   }
+
+  it should "move to the next state" in {
+    val game = new GameDescription(List(
+      Relation("succ", List("1", "2")),
+      Conditional(Next(Relation("step", List(VariableTerm("y")))), List(
+        StateCondition(Relation("step", List(VariableTerm("x")))),
+        FactCondition(Relation("succ", List(VariableTerm("x"), VariableTerm("y"))))
+      ))
+    ))
+
+    val state = new GameState(game, Set(
+      Relation("step", List("1"))
+    ))
+
+    state.update(Seq()).facts should be (Set(
+      Relation("step", List("2"))
+    ))
+  }
+
+  it should "move to the next state based on moves" in {
+    val game = new GameDescription(List(
+      Role("black"),
+      Conditional(Next(Relation("position", List(VariableTerm("x")))), List(
+        ActionCondition(Role("black"), Action("move", List(VariableTerm("x"))))
+      ))
+    ))
+
+    val state = new GameState(game, Set())
+    val moves = List(Action("move", List("1")))
+
+    state.update(moves).facts should be (Set(
+      Relation("position", List("1"))
+    ))
+  }
 }
