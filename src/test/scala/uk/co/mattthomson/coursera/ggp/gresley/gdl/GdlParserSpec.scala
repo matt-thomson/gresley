@@ -137,10 +137,10 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
         StateCondition(Relation("gold", List("i")))
       )),
 
-      Conditional(Goal(Role("robot"), 100), List(
+      Conditional(Goal(Role("robot"), LiteralTerm("100")), List(
         StateCondition(Relation("gold", List("a")))
       )),
-      Conditional(Goal(Role("robot"), 0), List(
+      Conditional(Goal(Role("robot"), LiteralTerm("0")), List(
         StateCondition(Relation("gold", List(VariableTerm("x")))),
         DistinctCondition(List(VariableTerm("x"), "a"))
       )),

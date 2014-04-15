@@ -258,32 +258,42 @@ class FactSpec extends FlatSpec with ShouldMatchers {
   }
 
   "A goal" should "substitute values where possible" in {
-    val fact = Goal(Role(VariableTerm("x")), 50)
+    val fact = Goal(Role(VariableTerm("x")), VariableTerm("y"))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
 
     val result = fact.substitute(values)
-    result should be(Goal(Role("1"), 50))
+    result should be(Goal(Role("1"), LiteralTerm("2")))
   }
 
   it should "match against a matching fact" in {
-    val partialFact = Goal(Role(VariableTerm("y")), 50)
-    val completeFact = Goal(Role("2"), 50)
+    val partialFact = Goal(Role(VariableTerm("x")), VariableTerm("y"))
+    val completeFact = Goal(Role("1"), LiteralTerm("2"))
 
-    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+    partialFact.matches(completeFact, Map()) should be (Some(Map("x" -> "1", "y" -> "2")))
   }
 
   it should "not match against a different fact" in {
-    val partialFact = Goal(Role(VariableTerm("y")), 50)
+    val partialFact = Goal(Role(VariableTerm("y")), LiteralTerm("50"))
     val completeFact = Role("black")
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
   it should "not match against a different score" in {
-    val partialFact = Goal(Role(VariableTerm("y")), 50)
-    val completeFact = Goal(Role("2"), 100)
+    val partialFact = Goal(Role(VariableTerm("y")), LiteralTerm("50"))
+    val completeFact = Goal(Role("2"), LiteralTerm("100"))
 
     partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "return the value if valid" in {
+    Goal(Role("black"), LiteralTerm("50")).value should be (50)
+  }
+
+  it should "throw an exception when getting the value of a variable" in {
+    intercept[IllegalArgumentException] {
+      Goal(Role("black"), VariableTerm("x")).value
+    }
   }
 
   "A terminal" should "be unchanged by substitution" in {

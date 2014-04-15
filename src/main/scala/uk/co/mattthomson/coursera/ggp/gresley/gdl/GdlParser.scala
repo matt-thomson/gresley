@@ -13,7 +13,6 @@ class GdlParser extends RegexParsers {
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
   private def id: Parser[String] = """[a-zA-Z0-9\.\-]+""".r
-  private def score: Parser[Int] = "[0-9]+".r ^^ { _.toInt }
 
   private def term = variableTerm | literalTerm
   private def variableTerm = "?" ~> name ^^ { name => VariableTerm(name) }
@@ -33,7 +32,7 @@ class GdlParser extends RegexParsers {
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
   private def legal = """\(\s*legal""".r ~> name ~ action <~ ")" ^^ { case role ~ action => Legal(Role(role), action) }
   private def next = """\(\s*next""".r ~> fact <~ ")" ^^ { fact => Next(fact) }
-  private def goal = """\(\s*goal""".r ~> name ~ score <~ ")" ^^ { case role ~ score => Goal(Role(role), score) }
+  private def goal = """\(\s*goal""".r ~> name ~ term <~ ")" ^^ { case role ~ score => Goal(Role(role), score) }
   private def terminal = "terminal" ^^^ Terminal
 
   private def condition: Parser[Condition] = factCondition | stateCondition | actionCondition | distinctCondition

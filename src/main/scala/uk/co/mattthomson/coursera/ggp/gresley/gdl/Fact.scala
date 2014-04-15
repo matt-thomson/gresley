@@ -88,12 +88,21 @@ case class Next(fact: Fact) extends Fact {
   }
 }
 
-case class Goal(role: Role, score: Int) extends Fact {
-  override def substitute(values: Map[String, String]) = Goal(role.substitute(values), score)
+case class Goal(role: Role, score: Term) extends Fact {
+  override def substitute(values: Map[String, String]) = Goal(role.substitute(values), score.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
-    case Goal(otherRole, `score`) => role.matches(otherRole, values)
+    case Goal(otherRole, otherScore) =>
+      score.substitute(values).matches(otherScore.substitute(values)) match {
+        case Some(v) => role.matches(otherRole, values ++ v)
+        case None => None
+      }
     case _ => None
+  }
+
+  lazy val value = score match {
+    case LiteralTerm(s) => s.toInt
+    case _ => throw new IllegalArgumentException("Can only get the value of a literal goal")
   }
 }
 
