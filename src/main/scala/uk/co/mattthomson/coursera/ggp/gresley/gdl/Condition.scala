@@ -11,3 +11,11 @@ case class FactCondition(fact: Fact) extends Condition {
 case class StateCondition(fact: Fact) extends Condition {
   override def matches(completeFact: Fact, values: Map[String, String]) = ???
 }
+
+case class ActionCondition(role: Role, action: Action) extends Condition {
+  override def matches(completeFact: Fact, values: Map[String, String]) = ???
+}
+
+case class DistinctCondition(terms: Seq[Term]) extends Condition {
+  override def matches(completeFact: Fact, values: Map[String, String]) = ???
+}

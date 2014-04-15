@@ -30,53 +30,53 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;  (<= (next (cell ?y))
-;      (does robot move)
-;      (true (cell ?x))
-;      (adjacent ?x ?y))
+  (<= (next (cell ?y))
+      (does robot move)
+      (true (cell ?x))
+      (adjacent ?x ?y))
 
-;  (<= (next (cell ?x))
-;      (does robot grab)
-;      (true (cell ?x)))
+  (<= (next (cell ?x))
+      (does robot grab)
+      (true (cell ?x)))
 
-;  (<= (next (cell ?x))
-;      (does robot drop)
-;      (true (cell ?x)))
-
-
-;  (<= (next (gold ?x))
-;      (does robot move)
-;      (true (gold ?x)))
-
-;  (<= (next (gold i))
-;      (does robot grab)
-;      (true (cell ?x))
-;      (true (gold ?x)))
-
-;  (<= (next (gold i))
-;      (does robot grab)
-;      (true (gold i)))
-
-;  (<= (next (gold ?y))
-;      (does robot grab)
-;      (true (cell ?x))
-;      (true (gold ?y))
-;      (distinct ?x ?y))
-
-;  (<= (next (gold ?x))
-;      (does robot drop)
-;      (true (cell ?x))
-;      (true (gold i)))
-
-;  (<= (next (gold ?x))
-;      (does robot drop)
-;      (true (gold ?x))
-;      (distinct ?x i))
+  (<= (next (cell ?x))
+      (does robot drop)
+      (true (cell ?x)))
 
 
-;  (<= (next (step ?y))
-;      (true (step ?x))
-;      (succ ?x ?y))
+  (<= (next (gold ?x))
+      (does robot move)
+      (true (gold ?x)))
+
+  (<= (next (gold i))
+      (does robot grab)
+      (true (cell ?x))
+      (true (gold ?x)))
+
+  (<= (next (gold i))
+      (does robot grab)
+      (true (gold i)))
+
+  (<= (next (gold ?y))
+      (does robot grab)
+      (true (cell ?x))
+      (true (gold ?y))
+      (distinct ?x ?y))
+
+  (<= (next (gold ?x))
+      (does robot drop)
+      (true (cell ?x))
+      (true (gold i)))
+
+  (<= (next (gold ?x))
+      (does robot drop)
+      (true (gold ?x))
+      (distinct ?x i))
+
+
+  (<= (next (step ?y))
+      (true (step ?x))
+      (succ ?x ?y))
 
 
   (adjacent a b)
@@ -108,20 +108,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;  (<= (goal robot 100)
-;      (true (gold a)))
+  (<= (goal robot 100)
+      (true (gold a)))
 
-;  (<= (goal robot 0)
-;      (true (gold ?x))
-;      (distinct ?x a))
+  (<= (goal robot 0)
+      (true (gold ?x))
+      (distinct ?x a))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;  (<= terminal
-;      (true (step 10)))
+  (<= terminal
+      (true (step 10)))
 
-;  (<= terminal
-;      (true (gold a)))
+  (<= terminal
+      (true (gold a)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

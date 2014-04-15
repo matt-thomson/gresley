@@ -78,3 +78,30 @@ case class Legal(role: Role, action: Action) extends Fact {
     case _ => None
   }
 }
+
+case class Next(fact: Fact) extends Fact {
+  override def substitute(values: Map[String, String]) = Next(fact.substitute(values))
+
+  override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
+    case Next(otherFact) => fact.matches(otherFact, values)
+    case _ => None
+  }
+}
+
+case class Goal(role: Role, score: Int) extends Fact {
+  override def substitute(values: Map[String, String]) = Goal(role.substitute(values), score)
+
+  override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
+    case Goal(otherRole, `score`) => role.matches(otherRole, values)
+    case _ => None
+  }
+}
+
+case object Terminal extends Fact {
+  override def substitute(values: Map[String, String]): Fact = Terminal
+
+  override def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]] = completeFact match {
+    case Terminal => Some(values)
+    case _ => None
+  }
+}

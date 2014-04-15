@@ -227,4 +227,84 @@ class FactSpec extends FlatSpec with ShouldMatchers {
 
     partialFact.matches(completeFact, Map()) should be (None)
   }
+
+  "A next rule" should "substitute values where possible" in {
+    val fact = Next(Relation("test", List("1", VariableTerm("y"), "3")))
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result.fact should be(Relation("test", List("1", "2", "3")))
+  }
+
+  it should "match against a matching fact" in {
+    val partialFact = Next(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Next(Relation("test", List("1", "2", "3")))
+
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not match against a different fact" in {
+    val partialFact = Next(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "not match against a different inner fact" in {
+    val partialFact = Next(Relation("test", List("1", VariableTerm("y"), "3")))
+    val completeFact = Next(Role("black"))
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  "A goal" should "substitute values where possible" in {
+    val fact = Goal(Role(VariableTerm("x")), 50)
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result should be(Goal(Role("1"), 50))
+  }
+
+  it should "match against a matching fact" in {
+    val partialFact = Goal(Role(VariableTerm("y")), 50)
+    val completeFact = Goal(Role("2"), 50)
+
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+  }
+
+  it should "not match against a different fact" in {
+    val partialFact = Goal(Role(VariableTerm("y")), 50)
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  it should "not match against a different score" in {
+    val partialFact = Goal(Role(VariableTerm("y")), 50)
+    val completeFact = Goal(Role("2"), 100)
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
+
+  "A terminal" should "be unchanged by substitution" in {
+    val fact = Terminal
+    val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
+
+    val result = fact.substitute(values)
+    result should be(Terminal)
+  }
+
+  it should "match against a matching fact" in {
+    val partialFact = Terminal
+    val completeFact = Terminal
+
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1")))
+  }
+
+  it should "not match against a different fact" in {
+    val partialFact = Terminal
+    val completeFact = Role("black")
+
+    partialFact.matches(completeFact, Map()) should be (None)
+  }
 }
