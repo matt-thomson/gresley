@@ -154,6 +154,11 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     )
   }
 
+  it should "parse Alquerque" in {
+    val game = Source.fromFile("src/test/resources/games/alquerque.kif").mkString
+    GameDescription(game)
+  }
+
   private def parse(input: String, expected: Any*) {
     val result = gdlParser.parseAll(gdlParser.game, input)
     if (result.successful) result.get should be(expected) else fail(result.toString)

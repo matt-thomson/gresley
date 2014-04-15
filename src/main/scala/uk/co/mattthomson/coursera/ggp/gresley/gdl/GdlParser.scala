@@ -9,13 +9,25 @@ class GdlParser extends RegexParsers {
 
   def game = statement.*
 
-  private def reserved = "role" | "input" | "base" | "init" | "legal" | "next" | "true" | "does" | "distinct" | "goal" | "terminal"
+  private def reserved =
+    "role\\b".r |
+    "input\\b".r |
+    "base\\b".r |
+    "init\\b".r |
+    "legal\\b".r |
+    "next\\b".r |
+    "true\\b".r |
+    "does\\b".r |
+    "distinct\\b".r |
+    "goal\\b".r |
+    "terminal\\b".r
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
+  private def variableName: Parser[String] = "[a-zA-Z0-9]+".r
   private def id: Parser[String] = """[a-zA-Z0-9\.\-]+""".r
 
   private def term = variableTerm | literalTerm
-  private def variableTerm = "?" ~> name ^^ { name => VariableTerm(name) }
+  private def variableTerm = "?" ~> variableName ^^ { name => VariableTerm(name) }
   private def literalTerm = name ^^ { name => LiteralTerm(name) }
 
   private def statement: Parser[Statement] = conditional | fact
@@ -25,21 +37,21 @@ class GdlParser extends RegexParsers {
   private def multipleAction = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Action(name, terms) }
   private def action = singleAction | multipleAction
 
-  private def role = """\(\s*role""".r ~> name <~ ")" ^^ { role => Role(role) }
+  private def role = """\(\s*role""".r ~> term <~ ")" ^^ { role => Role(role) }
   private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
-  private def input = """\(\s*input""".r ~> name ~ action <~ ")" ^^ { case role ~ action => Input(Role(role), action) }
+  private def input = """\(\s*input""".r ~> term ~ action <~ ")" ^^ { case role ~ action => Input(Role(role), action) }
   private def base = """\(\s*base""".r ~> fact <~ ")" ^^ { fact => Base(fact) }
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }
-  private def legal = """\(\s*legal""".r ~> name ~ action <~ ")" ^^ { case role ~ action => Legal(Role(role), action) }
+  private def legal = """\(\s*legal""".r ~> term ~ action <~ ")" ^^ { case role ~ action => Legal(Role(role), action) }
   private def next = """\(\s*next""".r ~> fact <~ ")" ^^ { fact => Next(fact) }
-  private def goal = """\(\s*goal""".r ~> name ~ term <~ ")" ^^ { case role ~ score => Goal(Role(role), score) }
+  private def goal = """\(\s*goal""".r ~> term ~ term <~ ")" ^^ { case role ~ score => Goal(Role(role), score) }
   private def terminal = "terminal" ^^^ Terminal
 
   private def condition: Parser[Condition] = factCondition | stateCondition | actionCondition | distinctCondition
 
   private def factCondition = fact ^^ { fact => FactCondition(fact) }
   private def stateCondition = """\(\s*true""".r ~> fact <~ ")" ^^ { fact => StateCondition(fact) }
-  private def actionCondition = """\(\s*does""".r ~> name ~ action <~ ")" ^^ { case role ~ action => ActionCondition(Role(role), action) }
+  private def actionCondition = """\(\s*does""".r ~> term ~ action <~ ")" ^^ { case role ~ action => ActionCondition(Role(role), action) }
   private def distinctCondition = """\(\s*distinct""".r ~> term.* <~ ")" ^^ { terms => DistinctCondition(terms) }
 
   private def conditional = """\(\s*<=""".r ~> fact ~ condition.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
