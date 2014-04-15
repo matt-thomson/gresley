@@ -15,7 +15,7 @@ class GameManager(playerProps: Props) extends Actor {
     case Info =>
       sender ! "((name gresley) (status available))"
     case Start(id, role, game, _, _) =>
-      val player = context.actorOf(playerProps, s"player-$id-$role")
+      val player = context.actorOf(playerProps, s"player-$id")
       player ! NewGame(game, role)
       sender ! "ready"
       context.become(handle(players + (id -> player)))
