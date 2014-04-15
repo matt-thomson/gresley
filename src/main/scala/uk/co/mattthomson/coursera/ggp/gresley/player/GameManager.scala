@@ -13,7 +13,7 @@ class GameManager(playerProps: Props) extends Actor {
 
   private def handle(players: Map[String, ActorRef]): Receive = {
     case Info =>
-      sender ! "ready"
+      sender ! "((name gresley) (status available))"
     case Start(id, role, game, _, _) =>
       val player = context.actorOf(playerProps, s"player-$id")
       player ! NewGame(game, role)
