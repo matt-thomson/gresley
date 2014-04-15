@@ -1,6 +1,6 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
-import akka.actor.{ActorRef, Props, Actor}
+import akka.actor.{PoisonPill, ActorRef, Props, Actor}
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{PlayersMoved, NewGame, SelectMove, GamesInProgress}
 import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
@@ -30,9 +30,11 @@ class GameManager(playerProps: Props) extends Actor {
       player ! SelectMove(sender)
     case Stop(id, _) =>
       sender ! "done"
+      players(id) ! PoisonPill
       context.become(handle(players - id))
     case Abort(id) =>
       sender ! "done"
+      players(id) ! PoisonPill
       context.become(handle(players - id))
 
     case action: Action => context.parent ! action
