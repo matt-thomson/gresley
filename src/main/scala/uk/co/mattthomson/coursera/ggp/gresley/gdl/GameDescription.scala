@@ -54,6 +54,8 @@ object GameDescription {
   def apply(gdl: String): GameDescription = {
     val parser = new GdlParser
     val statements = parser.parseAll(parser.game, gdl)
-    GameDescription(statements.get)
+
+    if (statements.successful) GameDescription(statements.get)
+    else throw new IllegalArgumentException(statements.toString)
   }
 }

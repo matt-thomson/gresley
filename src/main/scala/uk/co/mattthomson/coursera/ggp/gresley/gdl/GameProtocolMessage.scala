@@ -22,6 +22,8 @@ case class Abort(id: String) extends GameProtocolMessage
 object GameProtocolMessage {
   def apply(message: String) = {
     val parser = new GdlParser
-    parser.parseAll(parser.message, message).get
+    val parsed = parser.parseAll(parser.message, message)
+
+    if (parsed.successful) parsed.get else throw new IllegalArgumentException(parsed.toString)
   }
 }
