@@ -10,8 +10,10 @@ case class FactCondition(fact: Fact) extends Condition {
 }
 
 case class StateCondition(fact: Fact) extends Condition {
-  override def matches(completeFacts: Set[Fact], moves: Map[Role, Action], state: Option[GameState])(values: Map[String, String]) =
-    state.get.facts.flatMap(fact.matches(_, values))
+  override def matches(completeFacts: Set[Fact], moves: Map[Role, Action], state: Option[GameState])(values: Map[String, String]) = state match {
+    case Some(s) => s.facts.flatMap(fact.matches(_, values))
+    case None => Set()
+  }
 }
 
 case class ActionCondition(role: Role, action: Action) extends Condition {
