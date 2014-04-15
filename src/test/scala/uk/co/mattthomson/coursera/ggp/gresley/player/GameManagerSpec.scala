@@ -78,7 +78,6 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 
 class DummyPlayer extends Actor {
   def receive = {
-    case g: GameDescription =>
-    case SelectMove(_, source) => source ! Action("left", Nil)
+    case SelectMove(source) => source ! Action("left", Nil)
   }
 }
