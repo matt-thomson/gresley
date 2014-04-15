@@ -22,7 +22,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       Input(Role("black"), Action("down", Nil))
     ))
 
-    description.inputs("black") should be (Set(
+    description.actions("black") should be (Set(
       Action("up", Nil),
       Action("down", Nil)
     ))
@@ -135,7 +135,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.inputs("robot") should be (Set(
+    description.actions("robot") should be (Set(
       Action("drop", Nil),
       Action("grab", Nil),
       Action("move", Nil)

@@ -24,7 +24,7 @@ class GameDescription(private val statements: Seq[Statement]) {
     new GameState(allFacts.collect { case f: Init => f.fact })
   }
 
-  def inputs(role: String) = constantFacts.collect {
+  def actions(role: String) = constantFacts.collect {
     case Input(Role(LiteralTerm(`role`)), action) => action
   }
 
