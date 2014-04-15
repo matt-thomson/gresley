@@ -10,6 +10,6 @@ case class Conditional(conclusion: Fact, conditions: Seq[Condition]) extends Sta
 
     val values = conditions.foldLeft(Set[Map[String, String]](Map()))(matchCondition)
     val newFacts = values.map(conclusion.substitute)
-    newFacts.toSet
+    (facts ++ newFacts).toSet
   }
 }
