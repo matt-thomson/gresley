@@ -98,6 +98,14 @@ class FactSpec extends FlatSpec with ShouldMatchers {
     partialFact.matches(completeFact, Map()) should be (None)
   }
 
+  it should "print a simple action" in {
+    Action("test", Nil).toString should be ("test")
+  }
+
+  it should "print an action with terms" in {
+    Action("test", List("a", "b")).toString should be ("(test a b)")
+  }
+
   "A base rule" should "substitute values where possible" in {
     val fact = Base(Relation("test", List("1", VariableTerm("y"), "3")))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")

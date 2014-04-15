@@ -42,6 +42,11 @@ case class Action(name: String, terms: Seq[Term]) extends Fact {
     case Action(otherName, otherTerms) => if (name != otherName) None else Term.matchTerms(terms, otherTerms, values)
     case _ => None
   }
+
+  override def toString = terms match {
+    case Nil => name
+    case _ => s"($name ${terms.mkString(" ")})"
+  }
 }
 
 case class Input(role: Role, action: Action) extends ConstantFact {
