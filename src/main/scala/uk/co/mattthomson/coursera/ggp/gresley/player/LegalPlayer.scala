@@ -10,7 +10,7 @@ class LegalPlayer extends Actor {
   }
 
   def handle(game: GameDescription, role: String, state: GameState): Receive = {
-    case PlayersMoved(moves) => handle(game, role, state.update(moves))
+    case PlayersMoved(moves) => context.become(handle(game, role, state.update(moves)))
     case SelectMove(source) => source ! state.legalActions(role).head
   }
 }
