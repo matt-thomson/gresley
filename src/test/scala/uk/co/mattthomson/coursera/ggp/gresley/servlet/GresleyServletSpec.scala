@@ -18,14 +18,14 @@ class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with Sc
   it should "parse protocol messages and send to the manager" in {
     post("/", body = "(info)") {
       status should equal (200)
-      body should be ("ready")
+      body should be ("((name gresley) (status available))")
     }
   }
 
   it should "cope with messages in form params" in {
     post("/", body = "(info)", headers = Map("Content-Type" -> "application/x-www-form-urlencoded")) {
       status should equal (200)
-      body should be ("ready")
+      body should be ("((name gresley) (status available))")
     }
   }
 

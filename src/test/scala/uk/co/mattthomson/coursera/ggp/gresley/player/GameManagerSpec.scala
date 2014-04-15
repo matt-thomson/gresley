@@ -25,7 +25,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 
   "The manager" should "respond to an info message" in {
     manager ! Info
-    expectMsg("ready")
+    expectMsg("((name gresley) (status available))")
   }
 
   it should "respond to a start message" in {
