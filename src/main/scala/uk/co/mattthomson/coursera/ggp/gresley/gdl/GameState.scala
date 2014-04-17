@@ -1,6 +1,6 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-class GameState(private val game: GameDescription, val facts: Set[Fact]) {
+class GameState(private val game: GameDescription, val trueFacts: Set[Fact]) {
   def legalActions(role: String): Set[Action] = {
     propagateConditionals(game.constantFacts, Map(), game.legalMoveRules)
       .collect { case Legal(Role(LiteralTerm(`role`)), action) => action }
@@ -12,6 +12,8 @@ class GameState(private val game: GameDescription, val facts: Set[Fact]) {
 
     new GameState(game, facts)
   }
+
+  lazy val falseFacts: Set[Fact] = game.baseFacts -- trueFacts
 
   private def propagateConditionals(facts: Set[Fact], moves: Map[Role, Action], conditionals: Set[Conditional]): Set[Fact] = {
     val updatedFacts = conditionals.foldLeft(facts) { case (f, conditional) => conditional.propagate(f, moves, Some(this)) }

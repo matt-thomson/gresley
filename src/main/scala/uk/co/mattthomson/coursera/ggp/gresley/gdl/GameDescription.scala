@@ -24,6 +24,10 @@ class GameDescription(private val statements: Seq[Statement]) {
     new GameState(this, allFacts.collect { case f: Init => f.fact })
   }
 
+  lazy val baseFacts = constantFacts.collect {
+    case Base(fact) => fact
+  }
+
   lazy val legalMoveRules = statements
     .collect { case c: Conditional => c }
     .filter {c => c.conclusion.isInstanceOf[Legal] }

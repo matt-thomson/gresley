@@ -47,10 +47,11 @@ class GdlParser extends RegexParsers {
   private def goal = """\(\s*goal""".r ~> term ~ term <~ ")" ^^ { case role ~ score => Goal(Role(role), score) }
   private def terminal = "terminal" ^^^ Terminal
 
-  private def condition: Parser[Condition] = factCondition | stateCondition | actionCondition | distinctCondition
+  private def condition: Parser[Condition] = factCondition | trueStateCondition | falseStateCondition | actionCondition | distinctCondition
 
   private def factCondition = fact ^^ { fact => FactCondition(fact) }
-  private def stateCondition = """\(\s*true""".r ~> fact <~ ")" ^^ { fact => StateCondition(fact) }
+  private def trueStateCondition = """\(\s*true""".r ~> fact <~ ")" ^^ { fact => TrueStateCondition(fact) }
+  private def falseStateCondition = """\(\s*not""".r ~> trueStateCondition <~ ")" ^^ { condition => FalseStateCondition(condition.fact) }
   private def actionCondition = """\(\s*does""".r ~> term ~ action <~ ")" ^^ { case role ~ action => ActionCondition(Role(role), action) }
   private def distinctCondition = """\(\s*distinct""".r ~> term.* <~ ")" ^^ { terms => DistinctCondition(terms) }
 

@@ -9,9 +9,16 @@ case class FactCondition(fact: Fact) extends Condition {
     completeFacts.flatMap(fact.matches(_, values))
 }
 
-case class StateCondition(fact: Fact) extends Condition {
+case class TrueStateCondition(fact: Fact) extends Condition {
   override def matches(completeFacts: Set[Fact], moves: Map[Role, Action], state: Option[GameState])(values: Map[String, String]) = state match {
-    case Some(s) => s.facts.flatMap(fact.matches(_, values))
+    case Some(s) => s.trueFacts.flatMap(fact.matches(_, values))
+    case None => Set()
+  }
+}
+
+case class FalseStateCondition(fact: Fact) extends Condition {
+  override def matches(completeFacts: Set[Fact], moves: Map[Role, Action], state: Option[GameState])(values: Map[String, String]) = state match {
+    case Some(s) => s.falseFacts.flatMap(fact.matches(_, values))
     case None => Set()
   }
 }

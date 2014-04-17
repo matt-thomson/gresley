@@ -35,7 +35,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     ))
 
     val initialState = description.initialState
-    initialState.facts should be (Set(
+    initialState.trueFacts should be (Set(
       Relation("color", List("black")),
       Relation("color", List("white"))
     ))
@@ -122,13 +122,13 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     description.constantFacts.contains(Relation("adjacent", List("a", "b"))) should be (true)
   }
 
-  it should "have the correct base relations" in {
+  it should "have the correct base facts" in {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.constantFacts.contains(Base(Relation("cell", List("a")))) should be (true)
-    description.constantFacts.contains(Base(Relation("step", List("1")))) should be (true)
-    description.constantFacts.contains(Base(Relation("step", List("10")))) should be (true)
+    description.baseFacts.contains(Relation("cell", List("a"))) should be (true)
+    description.baseFacts.contains(Relation("step", List("1"))) should be (true)
+    description.baseFacts.contains(Relation("step", List("10"))) should be (true)
   }
 
   it should "have the correct inputs" in {
@@ -147,7 +147,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val description = GameDescription(game)
 
     val initialState = description.initialState
-    initialState.facts should be (Set(
+    initialState.trueFacts should be (Set(
       Relation("cell", List("a")),
       Relation("gold", List("c")),
       Relation("step", List("1"))
