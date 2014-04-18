@@ -13,7 +13,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
 
 class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
-  val manager = system.actorOf(Props(new GameManager(Props[DummyPlayer])))
+  val manager = system.actorOf(Props(new GameManager(new DummyPlayerPropsFactory)))
 
   after {
     import system.dispatcher
@@ -80,4 +80,8 @@ class DummyPlayer extends Actor {
   def receive = {
     case SelectMove(source) => source ! Action("left", Nil)
   }
+}
+
+class DummyPlayerPropsFactory extends PlayerPropsFactory {
+  override def forGame(game: GameDescription) = Props[DummyPlayer]
 }

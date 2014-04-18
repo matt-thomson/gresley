@@ -1,11 +1,13 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player.single
 
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameState
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameDescription, GameState}
 import akka.actor.ActorRef
 
-class CompulsiveDeliberationPlayer extends Player {
-  override def play(state: GameState, role: String, source: ActorRef) = {
+class CompulsiveDeliberationPlayer extends Player[Unit] {
+  override def initialize(game: GameDescription, role: String) = ()
+
+  override def play(state: GameState, role: String, source: ActorRef, playerState: Unit) = {
     source ! bestMove(state, role)
   }
 
