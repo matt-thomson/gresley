@@ -2,10 +2,9 @@ package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 class GameDescription(private val statements: Seq[Statement]) {
   lazy val constantFacts = {
-    val simpleFacts: Set[Fact] = statements.collect { case f: ConstantFact => f }.toSet
+    val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
     val conditionals: Set[Conditional] = statements
       .collect { case c: Conditional => c }
-      .filter {c => c.conclusion.isInstanceOf[ConstantFact] }
       .toSet
 
     propagateConditionals(simpleFacts, conditionals)

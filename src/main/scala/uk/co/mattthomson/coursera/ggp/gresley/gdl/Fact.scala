@@ -6,9 +6,7 @@ trait Fact extends Statement {
   def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]]
 }
 
-trait ConstantFact extends Fact
-
-case class Role(private val nameTerm: Term) extends ConstantFact {
+case class Role(private val nameTerm: Term) extends Fact {
   override def substitute(values: Map[String, String]) = Role(nameTerm.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
@@ -17,7 +15,7 @@ case class Role(private val nameTerm: Term) extends ConstantFact {
   }
 }
 
-case class Relation(name: Term, terms: Seq[Term]) extends ConstantFact {
+case class Relation(name: Term, terms: Seq[Term]) extends Fact {
   override def substitute(values: Map[String, String]) = Relation(name.substitute(values), terms.map(_.substitute(values)))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
@@ -29,7 +27,7 @@ case class Relation(name: Term, terms: Seq[Term]) extends ConstantFact {
   }
 }
 
-case class Base(fact: Fact) extends ConstantFact {
+case class Base(fact: Fact) extends Fact {
   override def substitute(values: Map[String, String]) = Base(fact.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
@@ -52,7 +50,7 @@ case class Action(name: String, terms: Seq[Term]) extends Fact {
   }
 }
 
-case class Input(role: Role, action: Action) extends ConstantFact {
+case class Input(role: Role, action: Action) extends Fact {
   override def substitute(values: Map[String, String]) = Input(role.substitute(values), action.substitute(values))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
