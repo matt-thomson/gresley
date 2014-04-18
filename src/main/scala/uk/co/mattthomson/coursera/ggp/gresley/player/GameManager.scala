@@ -8,13 +8,14 @@ import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Abort
 
-class GameManager(playerProps: Props) extends Actor {
+class GameManager(playerPropsFactory: PlayerPropsFactory) extends Actor {
   override def receive: Receive = handle(Map())
 
   private def handle(players: Map[String, ActorRef]): Receive = {
     case Info =>
       sender ! "((name gresley) (status available))"
     case Start(id, role, game, _, _) =>
+      val playerProps = playerPropsFactory.forGame(game)
       val player = context.actorOf(playerProps, s"player-$id")
       player ! NewGame(game, role)
       sender ! "ready"

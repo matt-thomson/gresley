@@ -1,16 +1,16 @@
 package uk.co.mattthomson.coursera.ggp.gresley
 
+import akka.actor.ActorSystem
 import org.scalatra.LifeCycle
 import javax.servlet.ServletContext
 import uk.co.mattthomson.coursera.ggp.gresley.servlet.GresleyServlet
-import akka.actor.{Props, ActorSystem}
-import uk.co.mattthomson.coursera.ggp.gresley.player.RandomPlayer
+import uk.co.mattthomson.coursera.ggp.gresley.player.PlayerPropsFactoryImpl
 
 class GresleyBootstrap extends LifeCycle {
   private val system = ActorSystem()
-  private val playerProps = Props[RandomPlayer]
+  private val playerPropsFactory = new PlayerPropsFactoryImpl
 
   override def init(context: ServletContext) {
-    context mount(new GresleyServlet(system, playerProps), "/")
+    context mount(new GresleyServlet(system, playerPropsFactory), "/")
   }
 }
