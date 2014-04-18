@@ -1,16 +1,13 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
-import akka.actor.Actor
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameState, GameDescription}
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{PlayersMoved, NewGame, SelectMove}
+import akka.actor.ActorRef
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameState
 
-class LegalPlayer extends Actor {
-  override def receive = {
-    case NewGame(game, role) => context.become(handle(game, role, game.initialState))
-  }
+class LegalPlayer extends Player {
+  override def play(state: GameState, role: String, source: ActorRef): Unit = {
+    val chosenAction = state.legalActions(role).head
+    log.info(s"Chosen action: $chosenAction")
 
-  def handle(game: GameDescription, role: String, state: GameState): Receive = {
-    case PlayersMoved(moves) => context.become(handle(game, role, state.update(moves)))
-    case SelectMove(source) => source ! state.legalActions(role).head
+    source ! chosenAction
   }
 }
