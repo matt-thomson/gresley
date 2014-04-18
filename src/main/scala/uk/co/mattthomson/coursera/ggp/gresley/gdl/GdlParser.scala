@@ -37,8 +37,11 @@ class GdlParser extends RegexParsers {
   private def multipleAction = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Action(name, terms) }
   private def action = singleAction | multipleAction
 
+  private def singleRelation = term ^^ { name => Relation(name, Nil) }
+  private def multipleRelation = "(" ~> term ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
+  private def relation = singleRelation | multipleRelation
+
   private def role = """\(\s*role""".r ~> term <~ ")" ^^ { role => Role(role) }
-  private def relation = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
   private def input = """\(\s*input""".r ~> term ~ action <~ ")" ^^ { case role ~ action => Input(Role(role), action) }
   private def base = """\(\s*base""".r ~> fact <~ ")" ^^ { fact => Base(fact) }
   private def init = """\(\s*init""".r ~> fact <~ ")" ^^ { fact => Init(fact) }

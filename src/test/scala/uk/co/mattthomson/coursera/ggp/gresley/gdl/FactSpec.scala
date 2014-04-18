@@ -35,21 +35,17 @@ class FactSpec extends FlatSpec with ShouldMatchers {
   }
 
   "A relation" should "substitute values where possible" in {
-    val fact = Relation("test", List(VariableTerm("x"), "a", VariableTerm("q"), VariableTerm("z")))
+    val fact = Relation(VariableTerm("y"), List(VariableTerm("x"), "a", VariableTerm("q"), VariableTerm("z")))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
 
-    val result = fact.substitute(values)
-    result.name should be ("test")
-
-    val expectedTerms: List[Term] = List("1", "a", VariableTerm("q"), "3")
-    result.terms should be (expectedTerms)
+    fact.substitute(values) should be (Relation("2", List("1", "a", VariableTerm("q"), "3")))
   }
 
   it should "match terms to values" in {
-    val partialFact = Relation("test", List("1", VariableTerm("y"), "3"))
+    val partialFact = Relation(VariableTerm("z"), List("1", VariableTerm("y"), "3"))
     val completeFact = Relation("test", List("1", "2", "3"))
 
-    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2")))
+    partialFact.matches(completeFact, Map("x" -> "1")) should be (Some(Map("x" -> "1", "y" -> "2", "z" -> "test")))
   }
 
   it should "not match against a relation with a different name" in {
