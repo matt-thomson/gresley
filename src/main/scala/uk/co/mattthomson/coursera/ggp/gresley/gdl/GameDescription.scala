@@ -30,12 +30,22 @@ class GameDescription(private val statements: Seq[Statement]) {
 
   lazy val legalMoveRules = statements
     .collect { case c: Conditional => c }
-    .filter {c => c.conclusion.isInstanceOf[Legal] }
+    .filter { c => c.conclusion.isInstanceOf[Legal] }
     .toSet
 
   lazy val nextMoveRules = statements
     .collect { case c: Conditional => c }
-    .filter {c => c.conclusion.isInstanceOf[Next] }
+    .filter { c => c.conclusion.isInstanceOf[Next] }
+    .toSet
+
+  lazy val terminalRules = statements
+    .collect { case c: Conditional => c }
+    .filter { c => c.conclusion == Terminal }
+    .toSet
+
+  lazy val goalRules = statements
+    .collect { case c: Conditional => c }
+    .filter { c => c.conclusion.isInstanceOf[Goal] }
     .toSet
 
   def actions(role: String) = constantFacts.collect {

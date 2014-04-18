@@ -139,4 +139,60 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("gold", List("c"))
     ))
   }
+
+  it should "mark a state as terminal correctly" in {
+    val game = new GameDescription(List(
+      Conditional(Terminal, List(
+        TrueStateCondition(Relation("cell", List("1")))
+      ))
+    ))
+
+    val state = new GameState(game, Set(
+      Relation("cell", List("1"))
+    ))
+
+    state.isTerminal should be (true)
+  }
+
+  it should "mark a state as not terminal correctly" in {
+    val game = new GameDescription(List(
+      Conditional(Terminal, List(
+        TrueStateCondition(Relation("cell", List("1")))
+      ))
+    ))
+
+    val state = new GameState(game, Set(
+      Relation("cell", List("2"))
+    ))
+
+    state.isTerminal should be (false)
+  }
+
+  it should "calculate the value of a state" in {
+    val game = new GameDescription(List(
+      Conditional(Goal(Role("black"), "50"), List(
+        TrueStateCondition(Relation("cell", List("1")))
+      ))
+    ))
+
+    val state = new GameState(game, Set(
+      Relation("cell", List("1"))
+    ))
+
+    state.value("black") should be (50)
+  }
+
+  it should "return 0 if the state value is not specified" in {
+    val game = new GameDescription(List(
+      Conditional(Goal(Role("black"), "50"), List(
+        TrueStateCondition(Relation("cell", List("1")))
+      ))
+    ))
+
+    val state = new GameState(game, Set(
+      Relation("cell", List("1"))
+    ))
+
+    state.value("white") should be (0)
+  }
 }
