@@ -30,6 +30,7 @@ case class ActionCondition(role: Role, action: Action) extends Condition {
 
 case class DistinctCondition(terms: Seq[Term]) extends Condition {
   override def matches(completeFacts: Set[Fact], moves: Map[Role, Action], state: Option[GameState])(values: Map[String, String]) = {
-    if (values.values.toSet.size == values.size) Set(values) else Set()
+    val substituted = terms.map(_.substitute(values))
+    if (substituted.toSet.size == substituted.size) Set(values) else Set()
   }
 }

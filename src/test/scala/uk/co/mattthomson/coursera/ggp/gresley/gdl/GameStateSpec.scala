@@ -2,6 +2,7 @@ package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
+import scala.io.Source
 
 class GameStateSpec extends FlatSpec with ShouldMatchers {
   "A game state" should "find the legal moves" in {
@@ -121,6 +122,21 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
     state.falseFacts should be (Set(
       Relation("cell", List("2"))
+    ))
+  }
+
+  it should "process distinct correctly" in {
+    val game = GameDescription(Source.fromFile("src/test/resources/games/maze.kif").mkString)
+    val state = new GameState(game, Set(
+      Relation("cell", List("c")),
+      Relation("gold", List("i"))
+    ))
+
+    val nextState = state.update(List(Action("drop", Nil)))
+
+    nextState.trueFacts should be (Set(
+      Relation("cell", List("c")),
+      Relation("gold", List("c"))
     ))
   }
 }
