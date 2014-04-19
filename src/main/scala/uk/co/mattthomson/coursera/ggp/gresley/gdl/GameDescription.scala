@@ -5,6 +5,7 @@ class GameDescription(private val statements: Seq[Statement]) {
     val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
     val conditionals: Set[Conditional] = statements
       .collect { case c: Conditional => c }
+      .filter { c => c.conditions.forall(_.isInstanceOf[FactCondition]) }
       .toSet
 
     propagateConditionals(simpleFacts, conditionals)
@@ -16,7 +17,7 @@ class GameDescription(private val statements: Seq[Statement]) {
     val simpleFacts: Set[Fact] = statements.collect { case f: Init => f }.toSet
     val conditionals: Set[Conditional] = statements
       .collect { case c: Conditional => c }
-      .filter {c => c.conclusion.isInstanceOf[Init] }
+      .filter { c => c.conclusion.isInstanceOf[Init] }
       .toSet
 
     val allFacts = propagateConditionals(constantFacts ++ simpleFacts, conditionals)
@@ -35,6 +36,11 @@ class GameDescription(private val statements: Seq[Statement]) {
   lazy val nextMoveRules = statements
     .collect { case c: Conditional => c }
     .filter { c => c.conclusion.isInstanceOf[Next] }
+    .toSet
+
+  lazy val stateRules = statements
+    .collect { case c: Conditional => c }
+    .filter { c => c.conditions.exists(!_.isInstanceOf[FactCondition]) }
     .toSet
 
   lazy val terminalRules = statements

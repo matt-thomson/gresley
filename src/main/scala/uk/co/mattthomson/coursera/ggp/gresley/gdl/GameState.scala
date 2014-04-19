@@ -1,13 +1,15 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 class GameState(private val game: GameDescription, val trueFacts: Set[Fact]) {
+  private lazy val stateFacts = propagateConditionals(game.constantFacts, Map(), game.stateRules)
+
   def legalActions(role: String) = {
-    propagateConditionals(game.constantFacts, Map(), game.legalMoveRules)
+    propagateConditionals(stateFacts, Map(), game.legalMoveRules)
       .collect { case Legal(Role(LiteralTerm(`role`)), action) => action }
   }
 
   def update(actions: Seq[Action]) = {
-    val facts = propagateConditionals(game.constantFacts, game.roles.map(Role(_)).zip(actions).toMap, game.nextMoveRules)
+    val facts = propagateConditionals(stateFacts, game.roles.map(Role(_)).zip(actions).toMap, game.nextMoveRules)
       .collect { case Next(fact) => fact }
 
     new GameState(game, facts)
@@ -15,9 +17,11 @@ class GameState(private val game: GameDescription, val trueFacts: Set[Fact]) {
 
   lazy val falseFacts = game.baseFacts -- trueFacts
 
-  lazy val isTerminal = propagateConditionals(game.constantFacts, Map(), game.terminalRules).contains(Terminal)
+  lazy val isTerminal = {
+    propagateConditionals(stateFacts, Map(), game.terminalRules).contains(Terminal)
+  }
 
-  def value(role: String) = propagateConditionals(game.constantFacts, Map(), game.goalRules)
+  def value(role: String) = propagateConditionals(stateFacts, Map(), game.goalRules)
     .collect { case g @ Goal(Role(LiteralTerm(`role`)), _) => g.value }
     .headOption
     .getOrElse(0)
