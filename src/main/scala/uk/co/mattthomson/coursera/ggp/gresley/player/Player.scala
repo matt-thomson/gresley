@@ -12,7 +12,9 @@ abstract class Player[T] extends Actor with ActorLogging {
   }
 
   def handle(game: GameDescription, role: String, state: GameState, playerState: T): Receive = {
-    case PlayersMoved(moves) => context.become(handle(game, role, state.update(moves), playerState))
+    case PlayersMoved(moves) =>
+      val actions = game.roles.zip(moves).toMap
+      context.become(handle(game, role, state.update(actions), playerState))
     case SelectMove(source) =>
       log.info(s"Current state:\n${state.trueFacts.mkString("\n")}")
       log.info(s"Legal actions:\n${state.legalActions(role).mkString("\n")}")

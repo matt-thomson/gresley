@@ -20,7 +20,9 @@ class GdlParser extends RegexParsers {
     "does\\b".r |
     "distinct\\b".r |
     "goal\\b".r |
-    "terminal\\b".r
+    "terminal\\b".r |
+    "not\\b".r |
+    "or\\b".r
 
   private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
   private def variableName: Parser[String] = "[a-zA-Z0-9]+".r

@@ -73,7 +73,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("step", List("1"))
     ))
 
-    state.update(Seq()).trueFacts should be (Set(
+    state.update(Map()).trueFacts should be (Set(
       Relation("step", List("2"))
     ))
   }
@@ -91,7 +91,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
     val state = new GameState(game, Set())
 
-    state.update(Seq()).trueFacts should be (Set(
+    state.update(Map()).trueFacts should be (Set(
       Relation("step", List("2"))
     ))
   }
@@ -109,7 +109,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("step", List("1"))
     ))
 
-    state.update(Seq()).trueFacts should be (Set(
+    state.update(Map()).trueFacts should be (Set(
       Relation("step", List("2"))
     ))
   }
@@ -123,7 +123,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
     ))
 
     val state = new GameState(game, Set())
-    val moves = List(Action("move", List("1")))
+    val moves = Map("black" -> Action("move", List("1")))
 
     state.update(moves).trueFacts should be (Set(
       Relation("position", List("1"))
@@ -150,7 +150,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("gold", List("i"))
     ))
 
-    val nextState = state.update(List(Action("drop", Nil)))
+    val nextState = state.update(Map("robot" -> Action("drop", Nil)))
 
     nextState.trueFacts should be (Set(
       Relation("cell", List("c")),
@@ -231,5 +231,22 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
     ))
 
     state.value("white") should be (0)
+  }
+
+  it should "treat the closed state of Tic-Tac-Toe as terminal" in {
+    val game = GameDescription(Source.fromFile("src/test/resources/games/tictactoe.kif").mkString)
+    val state = new GameState(game, Set(
+      Relation("cell", List("1", "1", "x")),
+      Relation("cell", List("1", "2", "x")),
+      Relation("cell", List("1", "3", "o")),
+      Relation("cell", List("2", "1", "o")),
+      Relation("cell", List("2", "2", "o")),
+      Relation("cell", List("2", "3", "x")),
+      Relation("cell", List("3", "1", "x")),
+      Relation("cell", List("3", "2", "o")),
+      Relation("cell", List("3", "3", "x"))
+    ))
+
+    state.isTerminal should be (true)
   }
 }

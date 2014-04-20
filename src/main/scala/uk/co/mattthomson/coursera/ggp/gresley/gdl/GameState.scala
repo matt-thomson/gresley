@@ -8,8 +8,9 @@ class GameState(private val game: GameDescription, val trueFacts: Set[Fact]) {
       .collect { case Legal(Role(LiteralTerm(`role`)), action) => action }
   }
 
-  def update(actions: Seq[Action]) = {
-    val facts = propagateConditionals(stateFacts, game.roles.map(Role(_)).zip(actions).toMap, game.nextMoveRules)
+  def update(actions: Map[String, Action]) = {
+    val actionsWithRoles: Map[Role, Action] = actions.map { case (role, action) => (Role(role), action) }.toMap
+    val facts = propagateConditionals(stateFacts, actionsWithRoles, game.nextMoveRules)
       .collect { case Next(fact) => fact }
 
     new GameState(game, facts)

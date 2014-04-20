@@ -19,7 +19,7 @@ class SequentialPlanningPlayer extends Player[Seq[Action]] {
   private def bestPlan(state: GameState, role: String): (List[Action], Int) = {
     if (state.isTerminal) (Nil, state.value(role))
     else state.legalActions(role).map { action =>
-      val newState = state.update(List(action))
+      val newState = state.update(Map(role -> action))
       val (otherActions, value) = bestPlan(newState, role)
       (action :: otherActions, value)
     }.maxBy(_._2)
