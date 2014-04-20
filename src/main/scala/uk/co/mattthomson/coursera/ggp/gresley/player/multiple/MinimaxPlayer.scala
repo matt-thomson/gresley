@@ -16,7 +16,12 @@ class MinimaxPlayer extends Player[String] {
   }
 
   private def bestMove(state: GameState, role: String, otherRole: String) = {
-    state.legalActions(role).maxBy(minScore(state, role, otherRole))
+    val legalActions = state.legalActions(role)
+    if (legalActions.size == 1) legalActions.head else {
+      val initialAction: Option[Action] = None
+      val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRole))
+      bestAction.get
+    }
   }
 
   private def minScore(state: GameState, role: String, otherRole: String)(action: Action): Int = {
@@ -26,11 +31,34 @@ class MinimaxPlayer extends Player[String] {
       state.update(actions)
     }
 
-    states.map(maxScore(role, otherRole)).min
+    val initialState: Option[GameState] = None
+    val (worstScore, _) = states.foldLeft((101, initialState))(tryNextMaxScore(role, otherRole))
+    worstScore
   }
 
   private def maxScore(role: String, otherRole: String)(state: GameState): Int = {
-    if (state.isTerminal) state.value(role)
-    else state.legalActions(role).map(minScore(state, role, otherRole)).max
+    if (state.isTerminal) state.value(role) else {
+      val initialAction: Option[Action] = None
+      val (bestScore, _) = state.legalActions(role).foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRole))
+      bestScore
+    }
+  }
+
+  private def tryNextMinScore(state: GameState, role: String, otherRole: String)(bestSoFar: (Int, Option[Action]), action: Action) = {
+    val (bestScoreSoFar, _) = bestSoFar
+    if (bestScoreSoFar == 100) bestSoFar
+    else {
+      val score = minScore(state, role, otherRole)(action)
+      if (score > bestScoreSoFar) (score, Some(action)) else bestSoFar
+    }
+  }
+
+  private def tryNextMaxScore(role: String, otherRole: String)(worstSoFar: (Int, Option[GameState]), state: GameState): (Int, Option[GameState]) = {
+    val (worstScoreSoFar, _) = worstSoFar
+    if (worstScoreSoFar == 0) worstSoFar
+    else {
+      val score = maxScore(role, otherRole)(state)
+      if (score < worstScoreSoFar) (score, Some(state)) else worstSoFar
+    }
   }
 }
