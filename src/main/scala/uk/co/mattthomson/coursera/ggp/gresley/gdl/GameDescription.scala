@@ -33,14 +33,9 @@ class GameDescription(private val statements: Seq[Statement]) {
     .filter { c => c.conclusion.isInstanceOf[Legal] }
     .toSet
 
-  lazy val nextMoveRules = statements
+  lazy val nextStateRules = statements
     .collect { case c: Conditional => c }
     .filter { c => c.conclusion.isInstanceOf[Next] }
-    .toSet
-
-  lazy val stateRules = statements
-    .collect { case c: Conditional => c }
-    .filter { c => c.conditions.exists(!_.isInstanceOf[FactCondition]) }
     .toSet
 
   lazy val terminalRules = statements
@@ -51,6 +46,11 @@ class GameDescription(private val statements: Seq[Statement]) {
   lazy val goalRules = statements
     .collect { case c: Conditional => c }
     .filter { c => c.conclusion.isInstanceOf[Goal] }
+    .toSet
+
+  lazy val stateRules = statements
+    .collect { case c: Conditional => c }
+    .filter { c => c.conclusion.isInstanceOf[Relation] }
     .toSet
 
   def actions(role: String) = constantFacts.collect {

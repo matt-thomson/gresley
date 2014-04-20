@@ -248,5 +248,45 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
     ))
 
     state.isTerminal should be (true)
+    state.value("oplayer") should be (50)
+    state.value("xplayer") should be (50)
+  }
+
+  it should "treat a line state of Tic-Tac-Toe as terminal" in {
+    val game = GameDescription(Source.fromFile("src/test/resources/games/tictactoe.kif").mkString)
+    val state = new GameState(game, Set(
+      Relation("cell", List("1", "1", "x")),
+      Relation("cell", List("1", "2", "x")),
+      Relation("cell", List("1", "3", "x")),
+      Relation("cell", List("2", "1", "b")),
+      Relation("cell", List("2", "2", "b")),
+      Relation("cell", List("2", "3", "b")),
+      Relation("cell", List("3", "1", "b")),
+      Relation("cell", List("3", "2", "b")),
+      Relation("cell", List("3", "3", "b"))
+    ))
+
+    state.isTerminal should be (true)
+    state.value("oplayer") should be (0)
+    state.value("xplayer") should be (100)
+  }
+
+  it should "score Tic-Tac-Toe correctly" in {
+    val game = GameDescription(Source.fromFile("src/test/resources/games/tictactoe.kif").mkString)
+    val state = new GameState(game, Set(
+      Relation("cell", List("1", "1", "x")),
+      Relation("cell", List("1", "2", "o")),
+      Relation("cell", List("1", "3", "x")),
+      Relation("cell", List("2", "1", "o")),
+      Relation("cell", List("2", "2", "o")),
+      Relation("cell", List("2", "3", "x")),
+      Relation("cell", List("3", "1", "o")),
+      Relation("cell", List("3", "2", "x")),
+      Relation("cell", List("3", "3", "x"))
+    ))
+
+    state.isTerminal should be (true)
+    state.value("oplayer") should be (0)
+    state.value("xplayer") should be (100)
   }
 }
