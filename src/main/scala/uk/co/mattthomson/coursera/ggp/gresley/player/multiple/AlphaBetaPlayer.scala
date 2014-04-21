@@ -25,15 +25,7 @@ class AlphaBetaPlayer extends Player[String] {
   }
 
   private def minScore(state: GameState, role: String, otherRole: String, alpha: Int, beta: Int)(action: Action): Int = {
-    val otherActions = state.legalActions(otherRole)
-    val states: Set[GameState] = otherActions.map { otherAction =>
-      val actions = Map(role -> action, otherRole -> otherAction)
-      state.update(actions)
-    }
-
-    val initialState: Option[GameState] = None
-    val (worstScore, _) = states.foldLeft((beta, initialState))(tryNextMaxScore(role, otherRole, alpha))
-    worstScore
+    state.legalActions(otherRole).foldLeft(beta)(tryNextMaxScore(state, action, role, otherRole, alpha))
   }
 
   private def maxScore(role: String, otherRole: String)(state: GameState, alpha: Int, beta: Int): Int = {
@@ -54,13 +46,14 @@ class AlphaBetaPlayer extends Player[String] {
     }
   }
 
-  private def tryNextMaxScore(role: String, otherRole: String, alpha: Int)(worstSoFar: (Int, Option[GameState]), state: GameState) = {
-    val (beta, _) = worstSoFar
-    if (beta == 0) worstSoFar
-    else if (beta <= alpha) (alpha, None)
+  private def tryNextMaxScore(state: GameState, action: Action, role: String, otherRole: String, alpha: Int)(beta: Int, otherAction: Action): Int = {
+    if (beta == 0) beta
+    else if (beta <= alpha) alpha
     else {
-      val score = maxScore(role, otherRole)(state, alpha, beta)
-      if (score < beta) (score, Some(state)) else worstSoFar
+      val actions = Map(role -> action, otherRole -> otherAction)
+      val newState = state.update(actions)
+      val score = maxScore(role, otherRole)(newState, alpha, beta)
+      if (score < beta) score else beta
     }
   }
 }
