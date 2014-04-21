@@ -45,22 +45,20 @@ class AlphaBetaPlayer extends Player[String] {
   }
 
   private def tryNextMinScore(state: GameState, role: String, otherRole: String, beta: Int)(bestSoFar: (Int, Option[Action]), action: Action) = {
-    val (bestScoreSoFar, _) = bestSoFar
-    if (bestScoreSoFar == 100) bestSoFar
-    else if (bestScoreSoFar >= beta) (beta, None)
+    val (alpha, _) = bestSoFar
+    if (alpha >= beta) (beta, None)
     else {
-      val score = minScore(state, role, otherRole, bestScoreSoFar, beta)(action)
-      if (score > bestScoreSoFar) (score, Some(action)) else bestSoFar
+      val score = minScore(state, role, otherRole, alpha, beta)(action)
+      if (score > alpha) (score, Some(action)) else bestSoFar
     }
   }
 
   private def tryNextMaxScore(role: String, otherRole: String, alpha: Int)(worstSoFar: (Int, Option[GameState]), state: GameState) = {
-    val (worstScoreSoFar, _) = worstSoFar
-    if (worstScoreSoFar == 0) worstSoFar
-    else if (worstScoreSoFar <= alpha) (alpha, None)
+    val (beta, _) = worstSoFar
+    if (beta <= alpha) (alpha, None)
     else {
-      val score = maxScore(role, otherRole)(state, alpha, worstScoreSoFar)
-      if (score < worstScoreSoFar) (score, Some(state)) else worstSoFar
+      val score = maxScore(role, otherRole)(state, alpha, beta)
+      if (score < beta) (score, Some(state)) else worstSoFar
     }
   }
 }
