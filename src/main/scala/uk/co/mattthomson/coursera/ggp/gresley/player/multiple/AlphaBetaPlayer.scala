@@ -4,55 +4,61 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{Action, GameState, GameDescription}
 import akka.actor.ActorRef
 
-class AlphaBetaPlayer extends Player[String] {
-  override def initialize(game: GameDescription, role: String) = game.roles.filter(_ != role).head
+class AlphaBetaPlayer extends Player[Seq[String]] {
+  override def initialize(game: GameDescription, role: String) = game.roles.filter(_ != role)
 
-  override def play(state: GameState, role: String, source: ActorRef, otherRole: String) = {
-    val chosenAction = bestMove(state, role, otherRole)
+  override def play(state: GameState, role: String, source: ActorRef, otherRoles: Seq[String]) = {
+    val chosenAction = bestMove(state, role, otherRoles)
     log.info(s"Chosen action: $chosenAction")
 
     source ! chosenAction
-    otherRole
+    otherRoles
   }
 
-  private def bestMove(state: GameState, role: String, otherRole: String) = {
+  private def bestMove(state: GameState, role: String, otherRoles: Seq[String]) = {
     val legalActions = state.legalActions(role)
     if (legalActions.size == 1) legalActions.head else {
       val initialAction: Option[Action] = None
-      val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRole, 101))
+      val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRoles, 101))
       bestAction.get
     }
   }
 
-  private def minScore(state: GameState, role: String, otherRole: String, alpha: Int, beta: Int)(action: Action): Int = {
-    state.legalActions(otherRole).foldLeft(beta)(tryNextMaxScore(state, action, role, otherRole, alpha))
+  private def minScore(state: GameState, role: String, otherRoles: Seq[String], alpha: Int, beta: Int)(action: Action): Int = {
+    val otherActions: Seq[Map[String, Action]] = otherRoles.foldLeft(Seq(Map[String, Action]()))(addAction(state))
+
+    otherActions.foldLeft(beta)(tryNextMaxScore(state, action, role, otherRoles, alpha))
   }
 
-  private def maxScore(role: String, otherRole: String)(state: GameState, alpha: Int, beta: Int): Int = {
+  private def maxScore(role: String, otherRoles: Seq[String])(state: GameState, alpha: Int, beta: Int): Int = {
     if (state.isTerminal) state.value(role) else {
       val initialAction: Option[Action] = None
-      val (bestScore, _) = state.legalActions(role).foldLeft((alpha, initialAction))(tryNextMinScore(state, role, otherRole, beta))
+      val (bestScore, _) = state.legalActions(role).foldLeft((alpha, initialAction))(tryNextMinScore(state, role, otherRoles, beta))
       bestScore
     }
   }
 
-  private def tryNextMinScore(state: GameState, role: String, otherRole: String, beta: Int)(bestSoFar: (Int, Option[Action]), action: Action) = {
+  private def addAction(state: GameState)(soFar: Seq[Map[String, Action]], role: String): Seq[Map[String, Action]] = {
+    soFar.flatMap(actions => state.legalActions(role).map { action => actions + (role -> action) })
+  }
+
+  private def tryNextMinScore(state: GameState, role: String, otherRoles: Seq[String], beta: Int)(bestSoFar: (Int, Option[Action]), action: Action) = {
     val (alpha, _) = bestSoFar
     if (alpha == 100) bestSoFar
     else if (alpha >= beta) (beta, None)
     else {
-      val score = minScore(state, role, otherRole, alpha, beta)(action)
+      val score = minScore(state, role, otherRoles, alpha, beta)(action)
       if (score > alpha) (score, Some(action)) else bestSoFar
     }
   }
 
-  private def tryNextMaxScore(state: GameState, action: Action, role: String, otherRole: String, alpha: Int)(beta: Int, otherAction: Action): Int = {
+  private def tryNextMaxScore(state: GameState, action: Action, role: String, otherRoles: Seq[String], alpha: Int)(beta: Int, otherActions: Map[String, Action]): Int = {
     if (beta == 0) beta
     else if (beta <= alpha) alpha
     else {
-      val actions = Map(role -> action, otherRole -> otherAction)
+      val actions = Map(role -> action) ++ otherActions
       val newState = state.update(actions)
-      val score = maxScore(role, otherRole)(newState, alpha, beta)
+      val score = maxScore(role, otherRoles)(newState, alpha, beta)
       if (score < beta) score else beta
     }
   }

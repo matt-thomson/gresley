@@ -30,4 +30,12 @@ class AlphaBetaPlayerSpec extends PlayerSpec {
 
     finalState.value("white") should be (100)
   }
+
+  it should "play Maze" in {
+    val player = system.actorOf(Props[AlphaBetaPlayer])
+
+    val finalState = playGame("maze", List(player))
+
+    finalState.value("robot") should be (100)
+  }
 }
