@@ -10,7 +10,7 @@ class BoundedDepthSearchPlayerSpec extends PlayerSpec {
 
     val finalState = playGame("hunter", List(player))
 
-    finalState.value("robot") should be (22)
+    finalState.value("robot") should be (75)
   }
 
   it should "play Alquerque" ignore {

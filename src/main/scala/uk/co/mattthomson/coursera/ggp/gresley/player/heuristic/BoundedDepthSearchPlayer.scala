@@ -19,7 +19,7 @@ class BoundedDepthSearchPlayer(depthLimit: Int) extends Player[Seq[String]] {
     val legalActions = state.legalActions(role)
     if (legalActions.size == 1) legalActions.head else {
       val initialAction: Option[Action] = None
-      val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRoles, 101, 0))
+      val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRoles, 101, 1))
       bestAction.get
     }
   }
@@ -32,7 +32,7 @@ class BoundedDepthSearchPlayer(depthLimit: Int) extends Player[Seq[String]] {
 
   private def maxScore(role: String, otherRoles: Seq[String], level: Int)(state: GameState, alpha: Int, beta: Int): Int = {
     if (state.isTerminal) state.value(role)
-    else if (level > depthLimit) 0
+    else if (level > depthLimit) state.value(role)
     else {
       val initialAction: Option[Action] = None
       val (bestScore, _) = state.legalActions(role).foldLeft((alpha, initialAction))(tryNextMinScore(state, role, otherRoles, beta, level))
