@@ -6,14 +6,13 @@ import akka.actor.{Actor, Props, ActorSystem}
 import akka.pattern.ask
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl._
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{SelectMove, GamesInProgress}
+import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{SelectMove, NewGame, GamesInProgress}
 import akka.util.Timeout
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
+import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
+import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Ready
 
 class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
-  val manager = system.actorOf(Props(new GameManager(new DummyPlayerPropsFactory)))
+  val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
 
   after {
     import system.dispatcher
@@ -65,7 +64,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
     val game = GameDescription("(role black)")
     val id = s"id-${System.nanoTime()}"
     manager ! Start(id, "black", game, 1.second, 2.seconds)
-    expectMsg("ready")
+    expectMsg(Ready)
 
     id
   }
@@ -77,11 +76,18 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 }
 
 class DummyPlayer extends Actor {
-  def receive = {
+  override def receive: Receive = {
+    case NewGame(_, _, source) => source ! Ready
     case SelectMove(source) => source ! Action("left", Nil)
   }
 }
 
-class DummyPlayerPropsFactory extends PlayerPropsFactory {
-  override def forGame(game: GameDescription) = Props[DummyPlayer]
+class DummyMoveSelector extends Actor {
+  def receive = {
+    case _ => sender ! Action("left", Nil)
+  }
+}
+
+class DummyMoveSelectorPropsFactory extends MoveSelectorPropsFactory {
+  override def forGame(game: GameDescription) = Props[DummyMoveSelector]
 }

@@ -1,18 +1,18 @@
-package uk.co.mattthomson.coursera.ggp.gresley.player.heuristic
+package uk.co.mattthomson.coursera.ggp.gresley.moveselector.heuristic
 
-import uk.co.mattthomson.coursera.ggp.gresley.player.Player
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.{Action, GameState, GameDescription}
-import akka.actor.ActorRef
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.{Action, GameState}
+import akka.actor.{Actor, ActorLogging}
+import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play, Initialized, Initialize}
 
-abstract class HeuristicSearchPlayer(depthLimit: Int) extends Player[Seq[String]] {
-  override def initialize(game: GameDescription, role: String): Seq[String] = game.roles.filter(_ != role)
+abstract class HeuristicSearchMoveSelector(depthLimit: Int) extends Actor with ActorLogging {
+  override def receive: Receive = {
+    case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role))
+    case Play(game, state, role, playerState) =>
+      val otherRoles = playerState.asInstanceOf[Seq[String]]
+      val chosenAction = bestMove(state, role, otherRoles)
+      log.info(s"Chosen action: $chosenAction")
 
-  override def play(state: GameState, role: String, source: ActorRef, otherRoles: Seq[String]): Seq[String] = {
-    val chosenAction = bestMove(state, role, otherRoles)
-    log.info(s"Chosen action: $chosenAction")
-
-    source ! chosenAction
-    otherRoles
+      sender ! SelectedMove(chosenAction, otherRoles)
   }
 
   private def bestMove(state: GameState, role: String, otherRoles: Seq[String]) = {

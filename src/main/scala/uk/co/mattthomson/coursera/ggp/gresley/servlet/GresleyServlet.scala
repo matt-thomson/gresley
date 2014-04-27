@@ -6,14 +6,15 @@ import _root_.akka.actor.{Props, ActorSystem}
 import _root_.akka.pattern.ask
 import _root_.akka.util.Timeout
 import scala.concurrent.duration._
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager
-import uk.co.mattthomson.coursera.ggp.gresley.gdl.{PlayerPropsFactory, GameProtocolMessage}
+import uk.co.mattthomson.coursera.ggp.gresley.player.{Player, GameManager}
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameProtocolMessage
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.util.MultiMap
+import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
 
-class GresleyServlet(system: ActorSystem, playerPropsFactory: PlayerPropsFactory) extends ScalatraServlet with FutureSupport with CorsSupport {
+class GresleyServlet(system: ActorSystem, moveSelectorPropsFactory: MoveSelectorPropsFactory) extends ScalatraServlet with FutureSupport with CorsSupport {
   private val logger = LoggerFactory.getLogger(getClass)
-  private val manager = system.actorOf(Props(new GameManager(playerPropsFactory)))
+  private val manager = system.actorOf(Props(new GameManager(Player(_), moveSelectorPropsFactory)))
 
   implicit val defaultTimeout = Timeout(1.minute)
 

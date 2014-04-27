@@ -7,18 +7,19 @@ import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Start
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Abort
+import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Ready
+import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
 
-class GameManager(playerPropsFactory: PlayerPropsFactory) extends Actor {
+class GameManager(playerFactory: Props => Actor, moveSelectorPropsFactory: MoveSelectorPropsFactory) extends Actor {
   override def receive: Receive = handle(Map())
 
   private def handle(players: Map[String, ActorRef]): Receive = {
     case Info =>
       sender ! "((name gresley) (status available))"
     case Start(id, role, game, _, _) =>
-      val playerProps = playerPropsFactory.forGame(game)
-      val player = context.actorOf(playerProps, s"player-$id")
-      player ! NewGame(game, role)
-      sender ! "ready"
+      val moveSelectorProps = moveSelectorPropsFactory.forGame(game)
+      val player = context.actorOf(Props(playerFactory(moveSelectorProps)), s"player-$id")
+      player ! NewGame(game, role, sender)
       context.become(handle(players + (id -> player)))
     case Play(id, moves) =>
       val player = players(id)
@@ -45,7 +46,7 @@ class GameManager(playerPropsFactory: PlayerPropsFactory) extends Actor {
 }
 
 object GameManager {
-  case class NewGame(game: GameDescription, role: String)
+  case class NewGame(game: GameDescription, role: String, source: ActorRef)
 
   case class PlayersMoved(moves: Seq[Action])
 
