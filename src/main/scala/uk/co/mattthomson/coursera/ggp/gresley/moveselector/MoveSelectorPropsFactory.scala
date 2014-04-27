@@ -4,5 +4,5 @@ import akka.actor.Props
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameDescription
 
 trait MoveSelectorPropsFactory {
-  def forGame(game: GameDescription): Props
+  def forGame(game: GameDescription): Seq[Props]
 }

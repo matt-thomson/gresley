@@ -77,17 +77,11 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 
 class DummyPlayer extends Actor {
   override def receive: Receive = {
-    case NewGame(_, _, source) => source ! Ready
-    case SelectMove(source) => source ! Action("left", Nil)
-  }
-}
-
-class DummyMoveSelector extends Actor {
-  def receive = {
-    case _ => sender ! Action("left", Nil)
+    case NewGame(_, _, source, _) => source ! Ready
+    case SelectMove(source, _) => source ! Action("left", Nil)
   }
 }
 
 class DummyMoveSelectorPropsFactory extends MoveSelectorPropsFactory {
-  override def forGame(game: GameDescription) = Props[DummyMoveSelector]
+  override def forGame(game: GameDescription) = Seq(Props[DummyMoveSelector])
 }
