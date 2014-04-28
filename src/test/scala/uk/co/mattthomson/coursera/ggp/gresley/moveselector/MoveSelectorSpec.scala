@@ -17,29 +17,23 @@ abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) 
     def play(game: GameDescription, state: GameState, players: Map[String, (ActorRef, Any)]): GameState = {
       if (state.isTerminal) state
       else {
-        val selectedMoves = players.map { case (role, (player, playerState)) =>
-          player ! Play(game, state, role, playerState)
+        val selectedMoves = players.map { case (role, (player, metadata)) =>
+          player ! Play(game, state, role, metadata)
           (role, receiveOne(10.seconds).asInstanceOf[SelectedMove])
         }.toMap
 
-        val actions = selectedMoves.map { case (role, SelectedMove(action, _)) => (role, action)}.toMap
+        val actions = selectedMoves.map { case (role, SelectedMove(action)) => (role, action) }.toMap
         val updatedState = state.update(actions)
 
-        val updatedPlayers = selectedMoves.map { case (role, SelectedMove(_, playerState)) =>
-          players(role) match {
-            case (player, _) => (role, (player, playerState))
-          }
-        }.toMap
-
-        play(game, updatedState, updatedPlayers)
+        play(game, updatedState, players)
       }
     }
 
     val game = GameDescription(Source.fromFile(s"src/test/resources/games/$gameName.kif").mkString)
     val players = game.roles.zip(moveSelectorProps.map { system.actorOf }).map { case (role, player) =>
       player ! Initialize(game, role)
-      val playerState = receiveOne(10.seconds).asInstanceOf[Initialized].playerState
-      (role, (player, playerState))
+      val metadata = receiveOne(10.seconds).asInstanceOf[Initialized].metadata
+      (role, (player, metadata))
     }.toMap
 
     play(game, game.initialState, players)

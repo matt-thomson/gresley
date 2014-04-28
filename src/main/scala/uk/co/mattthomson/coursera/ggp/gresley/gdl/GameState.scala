@@ -1,6 +1,6 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-class GameState(private val game: GameDescription, val trueFacts: Set[Fact]) {
+case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
   private lazy val stateFacts = propagateConditionals(game.constantFacts, Map(), game.stateRules)
 
   def legalActions(role: String) = {

@@ -1,6 +1,6 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-class GameDescription(private val statements: Seq[Statement]) {
+case class GameDescription(statements: Seq[Statement]) {
   lazy val constantFacts = {
     val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
     val conditionals: Set[Conditional] = statements
@@ -61,25 +61,9 @@ class GameDescription(private val statements: Seq[Statement]) {
     val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f, Map(), None) }
     if (simpleFacts == updatedFacts) simpleFacts else propagateConditionals(updatedFacts, conditionals)
   }
-
-  private def canEqual(other: Any): Boolean = other.isInstanceOf[GameDescription]
-
-  override def equals(other: Any): Boolean = other match {
-    case that: GameDescription =>
-      (that canEqual this) &&
-        statements == that.statements
-    case _ => false
-  }
-
-  override def hashCode(): Int = {
-    val state = Seq(statements)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
 }
 
 object GameDescription {
-  def apply(statements: Seq[Statement]): GameDescription = new GameDescription(statements)
-
   def apply(gdl: String): GameDescription = {
     val parser = new GdlParser
     val statements = parser.parseAll(parser.game, gdl)

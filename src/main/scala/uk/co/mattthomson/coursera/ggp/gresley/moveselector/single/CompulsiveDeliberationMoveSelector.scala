@@ -11,7 +11,7 @@ class CompulsiveDeliberationMoveSelector extends Actor with ActorLogging {
       val chosenAction = bestMove(state, role)
       log.info(s"Chosen action: $chosenAction")
 
-      sender ! SelectedMove(chosenAction, ())
+      sender ! SelectedMove(chosenAction)
   }
 
   private def maxScore(state: GameState, role: String): Int = {

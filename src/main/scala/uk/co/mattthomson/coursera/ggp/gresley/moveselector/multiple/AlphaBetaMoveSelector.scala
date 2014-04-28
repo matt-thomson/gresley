@@ -7,12 +7,12 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play,
 class AlphaBetaMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role))
-    case Play(game, state, role, playerState) =>
-      val otherRoles = playerState.asInstanceOf[Seq[String]]
+    case Play(game, state, role, metadata) =>
+      val otherRoles = metadata.asInstanceOf[Seq[String]]
       val chosenAction = bestMove(state, role, otherRoles)
       log.info(s"Chosen action: $chosenAction")
 
-      sender ! SelectedMove(chosenAction, otherRoles)
+      sender ! SelectedMove(chosenAction)
   }
 
   private def bestMove(state: GameState, role: String, otherRoles: Seq[String]) = {

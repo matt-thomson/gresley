@@ -11,6 +11,6 @@ class RandomMoveSelector extends Actor with ActorLogging {
       val chosenAction = Random.shuffle(state.legalActions(role)).head
       log.info(s"Chosen action: $chosenAction")
 
-      sender ! SelectedMove(chosenAction, ())
+      sender ! SelectedMove(chosenAction)
   }
 }

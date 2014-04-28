@@ -10,6 +10,6 @@ class LegalMoveSelector extends Actor with ActorLogging {
       val chosenAction = state.legalActions(role).head
       log.info(s"Chosen action: $chosenAction")
 
-      sender ! SelectedMove(chosenAction, ())
+      sender ! SelectedMove(chosenAction)
   }
 }

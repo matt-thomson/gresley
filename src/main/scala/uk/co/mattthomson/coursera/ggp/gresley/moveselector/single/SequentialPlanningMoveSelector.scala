@@ -8,23 +8,24 @@ class SequentialPlanningMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize(game, role) =>
       val (actions, value) = bestPlan(game.initialState, role)
-      log.info(s"Plan with value $value: ${actions.mkString("\n")}")
+      log.info(s"Found plan with value $value")
 
       sender ! Initialized(actions)
 
-    case Play(_, _, _, playerState) =>
-      val actions = playerState.asInstanceOf[Seq[Action]]
+    case Play(_, state, _, metadata) =>
+      val actions = metadata.asInstanceOf[Map[GameState, Action]]
+      val chosenAction = actions(state)
 
-      log.info(s"Chosen action: ${actions.head}")
-      sender ! SelectedMove(actions.head, actions.tail)
+      log.info(s"Chosen action: $chosenAction")
+      sender ! SelectedMove(chosenAction)
   }
 
-  private def bestPlan(state: GameState, role: String): (List[Action], Int) = {
-    if (state.isTerminal) (Nil, state.value(role))
+  private def bestPlan(state: GameState, role: String): (Map[GameState, Action], Int) = {
+    if (state.isTerminal) (Map(), state.value(role))
     else state.legalActions(role).map { action =>
       val newState = state.update(Map(role -> action))
       val (otherActions, value) = bestPlan(newState, role)
-      (action :: otherActions, value)
+      (Map(state -> action) ++ otherActions, value)
     }.maxBy(_._2)
   }
 }

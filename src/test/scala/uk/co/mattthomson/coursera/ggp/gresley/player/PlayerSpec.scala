@@ -30,7 +30,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     expectMsg(Ready)
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("1", Nil))
+    expectMsg(Action("hi", Nil))
   }
 
   it should "keep player state up to date" in {
@@ -40,10 +40,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     expectMsg(Ready)
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("1", Nil))
+    expectMsg(Action("hi", Nil))
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("2", Nil))
+    expectMsg(Action("hi", Nil))
   }
 
   it should "respond with the result of the first actor in the list" in {
@@ -56,7 +56,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     expectMsg(Ready)
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("1", Nil))
+    expectMsg(Action("hi", Nil))
   }
 
   it should "respond with the result of the first actor after a delay" in {
@@ -82,18 +82,17 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     expectMsg(Ready)
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("1", Nil))
+    expectMsg(Action("hi", Nil))
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("2", Nil))
+    expectMsg(Action("hi", Nil))
   }
 }
 
 class DummyMoveSelector extends Actor {
   def receive = {
-    case Initialize(game, role) => sender ! Initialized(1)
-    case Play(game, _, "black", count) =>
-      sender ! SelectedMove(Action(count.toString, Nil), count.asInstanceOf[Int] + 1)
+    case Initialize(game, role) => sender ! Initialized(())
+    case Play(game, _, "black", _) => sender ! SelectedMove(Action("hi", Nil))
   }
 }
 
@@ -102,6 +101,6 @@ class DelayMoveSelector(delay: FiniteDuration) extends Actor {
     case Initialize(game, role) => sender ! Initialized(())
     case Play(game, _, "black", count) =>
       Thread.sleep(delay.toMillis)
-      sender ! SelectedMove(Action("hello", Nil), ())
+      sender ! SelectedMove(Action("hello", Nil))
   }
 }
