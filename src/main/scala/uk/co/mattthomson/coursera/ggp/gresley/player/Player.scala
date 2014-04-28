@@ -12,6 +12,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.SelectedMove
+import scala.util.Random
 
 class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
   import context.dispatcher
@@ -83,7 +84,14 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
 
     case Timeout =>
       moveSelectors.keys.foreach(_ ! PoisonPill)
-      source ! bestAction.get._2
+      val chosenAction = bestAction match {
+        case Some((_, action)) => action
+        case None => Random.shuffle(state.legalActions(role)).head
+      }
+
+      log.info(s"Playing $chosenAction")
+      source ! chosenAction
+
       context.become(handle(game, role, state, metadatas))
   }
 }

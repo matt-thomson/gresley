@@ -7,6 +7,6 @@ import uk.co.mattthomson.coursera.ggp.gresley.moveselector.multiple.AlphaBetaMov
 
 class MoveSelectorPropsFactoryImpl extends MoveSelectorPropsFactory {
   override def forGame(game: GameDescription) =
-    if (game.roles.size == 1) Seq(Props[SequentialPlanningMoveSelector])
+    if (game.roles.size == 1) Seq(Props[SequentialPlanningMoveSelector], Props[AlphaBetaMoveSelector])
     else Seq(Props[AlphaBetaMoveSelector])
 }

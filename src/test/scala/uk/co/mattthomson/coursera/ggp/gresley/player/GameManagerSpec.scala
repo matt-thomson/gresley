@@ -2,47 +2,43 @@ package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import org.scalatest.{BeforeAndAfter, FlatSpec}
 import akka.testkit.{ImplicitSender, TestKit}
-import akka.actor.{Actor, Props, ActorSystem}
-import akka.pattern.ask
+import akka.actor.{ActorRef, Actor, Props, ActorSystem}
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{SelectMove, NewGame, GamesInProgress}
-import akka.util.Timeout
 import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Ready
 
 class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
-  val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
-
-  after {
-    import system.dispatcher
-    implicit val timeout = Timeout(1)
-
-    val games = manager ? GamesInProgress
-    games.foreach(g => g.asInstanceOf[List[String]].foreach(abortGame))
-  }
-
   "The manager" should "respond to an info message" in {
+    val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
+    
     manager ! Info
     expectMsg("((name gresley) (status available))")
   }
 
   it should "respond to a start message" in {
-    val id = startGame
+    val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
+    
+    val id = startGame(manager)
 
     manager ! GamesInProgress
     expectMsg(List(id))
   }
 
   it should "respond to a play message" in {
-    val id = startGame
+    val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
+    
+    val id = startGame(manager)
 
     manager ! Play(id, None)
     expectMsg(Action("left", Nil))
   }
 
   it should "respond to a stop message" in {
-    val id = startGame
+    val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
+    
+    val id = startGame(manager)
 
     manager ! Stop(id, List(Action("left", Nil), Action("right", Nil)))
     expectMsg("done")
@@ -52,15 +48,17 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
   }
 
   it should "respond to an abort message" in {
-    val id = startGame
+    val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
 
-    abortGame(id)
+    val id = startGame(manager)
+
+    abortGame(manager, id)
 
     manager ! GamesInProgress
     expectMsg(Nil)
   }
 
-  private def startGame: String = {
+  private def startGame(manager: ActorRef): String = {
     val game = GameDescription("(role black)")
     val id = s"id-${System.nanoTime()}"
     manager ! Start(id, "black", game, 1.second, 2.seconds)
@@ -69,7 +67,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
     id
   }
 
-  private def abortGame(id: String) {
+  private def abortGame(manager: ActorRef, id: String) {
     manager ! Abort(id)
     expectMsg("done")
   }

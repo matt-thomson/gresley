@@ -14,7 +14,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 
 class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender {
-  private val game = GameDescription("(role black)")
+  private val game = GameDescription("(role black) (legal black left)")
 
   "A player" should "initialize" in {
     val player = system.actorOf(Props(new Player(Seq(Props[DummyMoveSelector]))))
@@ -86,6 +86,18 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
 
     player ! SelectMove(self, 3.seconds)
     expectMsg(Action("hi", Nil))
+  }
+
+  it should "fall back to a random move if all time out" in {
+    val player = system.actorOf(Props(new Player(Seq(
+      Props(new DelayMoveSelector(1.1.seconds))
+    ))))
+
+    player ! NewGame(game, "black", self, 3.seconds)
+    expectMsg(Ready)
+
+    player ! SelectMove(self, 3.seconds)
+    expectMsg(Action("left", Nil))
   }
 }
 
