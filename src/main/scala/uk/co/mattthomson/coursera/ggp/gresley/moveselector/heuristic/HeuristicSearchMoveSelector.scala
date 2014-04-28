@@ -7,7 +7,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play,
 abstract class HeuristicSearchMoveSelector(depthLimit: Int) extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role))
-    case Play(game, state, role, metadata) =>
+    case Play(_, state, role, _, metadata) =>
       val otherRoles = metadata.asInstanceOf[Seq[String]]
       val chosenAction = bestMove(state, role, otherRoles)
       log.info(s"Chosen action: $chosenAction")

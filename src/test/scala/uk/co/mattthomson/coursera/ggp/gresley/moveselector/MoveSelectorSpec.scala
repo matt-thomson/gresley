@@ -11,6 +11,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player._
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Play
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
+import org.joda.time.DateTime
 
 abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with ShouldMatchers {
   protected def playGame(gameName: String, moveSelectorProps: Seq[Props]): GameState = {
@@ -18,7 +19,7 @@ abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) 
       if (state.isTerminal) state
       else {
         val selectedMoves = players.map { case (role, (player, metadata)) =>
-          player ! Play(game, state, role, metadata)
+          player ! Play(game, state, role, DateTime.now().plus(10000), metadata)
           (role, receiveOne(10.seconds).asInstanceOf[SelectedMove])
         }.toMap
 

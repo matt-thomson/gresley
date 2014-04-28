@@ -12,7 +12,7 @@ class SequentialPlanningMoveSelector extends Actor with ActorLogging {
 
       sender ! Initialized(actions)
 
-    case Play(_, state, _, metadata) =>
+    case Play(_, state, _, _, metadata) =>
       val actions = metadata.asInstanceOf[Map[GameState, Action]]
       val chosenAction = actions(state)
 

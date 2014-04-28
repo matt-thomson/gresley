@@ -103,15 +103,15 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
 
 class DummyMoveSelector extends Actor {
   def receive = {
-    case Initialize(game, role) => sender ! Initialized(())
-    case Play(game, _, "black", _) => sender ! SelectedMove(Action("hi", Nil))
+    case Initialize(_, _) => sender ! Initialized(())
+    case Play(_, _, "black", _, _) => sender ! SelectedMove(Action("hi", Nil))
   }
 }
 
 class DelayMoveSelector(delay: FiniteDuration) extends Actor {
   def receive = {
-    case Initialize(game, role) => sender ! Initialized(())
-    case Play(game, _, "black", count) =>
+    case Initialize(_, _) => sender ! Initialized(())
+    case Play(_, _, "black", _, _) =>
       Thread.sleep(delay.toMillis)
       sender ! SelectedMove(Action("hello", Nil))
   }

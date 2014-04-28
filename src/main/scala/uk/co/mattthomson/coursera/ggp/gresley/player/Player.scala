@@ -1,7 +1,9 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import akka.actor._
+import org.joda.time.DateTime
 import scala.concurrent.duration._
+import scala.util.Random
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameDescription, GameState}
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player._
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.PlayersMoved
@@ -12,7 +14,6 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.SelectedMove
-import scala.util.Random
 
 class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
   import context.dispatcher
@@ -57,7 +58,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
 
       val moveSelectors = metadatas.map { case (props, metadata) =>
         val moveSelector = context.actorOf(props)
-        moveSelector ! Play(game, state, role, metadata)
+        moveSelector ! Play(game, state, role, DateTime.now().plus(timeout.toMillis), metadata)
         (moveSelector, props)
       }.toMap
 
@@ -107,7 +108,7 @@ object Player {
     override def toString = "ready"
   }
 
-  case class Play(game: GameDescription, state: GameState, role: String, metadata: Any)
+  case class Play(game: GameDescription, state: GameState, role: String, endTime: DateTime, metadata: Any)
 
   case class SelectedMove(action: Action)
 

@@ -7,7 +7,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play,
 class CompulsiveDeliberationMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize(game, role) => sender ! Initialized(())
-    case Play(_, state, role, _) =>
+    case Play(_, state, role, _, _) =>
       val chosenAction = bestMove(state, role)
       log.info(s"Chosen action: $chosenAction")
 
