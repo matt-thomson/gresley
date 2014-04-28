@@ -69,7 +69,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     expectMsg(Ready)
 
     player ! SelectMove(self, 3.seconds)
-    expectMsg(Action("1", Nil))
+    expectMsg(Action("hello", Nil))
   }
 
   it should "skip over in the event of a timeout" in {
@@ -98,11 +98,10 @@ class DummyMoveSelector extends Actor {
 }
 
 class DelayMoveSelector(delay: FiniteDuration) extends Actor {
-  import context.dispatcher
-
   def receive = {
     case Initialize(game, role) => sender ! Initialized(())
     case Play(game, _, "black", count) =>
-      context.system.scheduler.scheduleOnce(delay, sender, SelectedMove(Action("hello", Nil), ()))
+      Thread.sleep(delay.toMillis)
+      sender ! SelectedMove(Action("hello", Nil), ())
   }
 }
