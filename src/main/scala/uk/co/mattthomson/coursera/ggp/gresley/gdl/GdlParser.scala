@@ -65,7 +65,7 @@ class GdlParser extends RegexParsers {
 
   def message = info | start | play | stop | abort
 
-  private def clock = "[0-9]+".r ^^ { _.toInt.seconds }
+  private def clock = "[0-9]+".r ^^ { _.toInt.min(30).seconds }
 
   private def nilMove = """(?i)nil""".r ^^^ None
   private def someMoves = "(" ~> action.* <~ ")" ^^ { l => Some(l) }
