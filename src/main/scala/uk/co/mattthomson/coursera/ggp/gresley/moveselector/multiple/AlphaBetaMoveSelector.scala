@@ -6,8 +6,9 @@ import org.joda.time.DateTime.now
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{Action, GameState}
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play, Initialized, Initialize}
 import java.util.concurrent.TimeoutException
+import uk.co.mattthomson.coursera.ggp.gresley.moveselector.TimeoutChecker
 
-class AlphaBetaMoveSelector extends Actor with ActorLogging {
+class AlphaBetaMoveSelector extends Actor with ActorLogging with TimeoutChecker {
   override def receive: Receive = {
     case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role))
     case Play(_, state, role, endTime, metadata) =>
@@ -74,9 +75,5 @@ class AlphaBetaMoveSelector extends Actor with ActorLogging {
       val score = maxScore(role, otherRoles)(newState, alpha, beta, endTime)
       if (score < beta) score else beta
     }
-  }
-
-  private def checkStillRunning(endTime: DateTime) = {
-    if (now.isAfter(endTime)) throw new TimeoutException()
   }
 }
