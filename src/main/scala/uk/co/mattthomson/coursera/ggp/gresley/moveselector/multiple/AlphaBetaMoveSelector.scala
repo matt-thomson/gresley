@@ -10,7 +10,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.moveselector.TimeoutChecker
 
 class AlphaBetaMoveSelector extends Actor with ActorLogging with TimeoutChecker {
   override def receive: Receive = {
-    case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role))
+    case Initialize(game, role, _) => sender ! Initialized(game.roles.filter(_ != role))
     case Play(_, state, role, endTime, metadata) =>
       val otherRoles = metadata.asInstanceOf[Seq[String]]
       val chosenAction = bestMove(state, role, otherRoles, endTime)

@@ -6,7 +6,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play,
 
 class RandomMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
-    case Initialize(game, role) => sender ! Initialized(())
+    case Initialize(_, _, _) => sender ! Initialized(())
     case Play(_, state, role, _, _) =>
       val chosenAction = Random.shuffle(state.legalActions(role)).head
       log.info(s"Chosen action: $chosenAction")

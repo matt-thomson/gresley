@@ -6,7 +6,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play,
 
 class MinimaxMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
-    case Initialize(game, role) => sender ! Initialized(game.roles.filter(_ != role).head)
+    case Initialize(game, role, _) => sender ! Initialized(game.roles.filter(_ != role).head)
     case Play(_, state, role, _, metadata) =>
       val otherRole = metadata.asInstanceOf[String]
       val chosenAction = bestMove(state, role, otherRole)

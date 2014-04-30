@@ -21,7 +21,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
   override def receive = {
     case NewGame(game, role, source, timeout) =>
       val moveSelectors = moveSelectorProps.map(context.actorOf)
-      moveSelectors.foreach(_ ! Initialize(game, role))
+      moveSelectors.foreach(_ ! Initialize(game, role, DateTime.now().plus(timeout.toMillis)))
 
       context.system.scheduler.scheduleOnce(timeout - 2.seconds, self, Timeout)
       context.become(awaitInitialize(game, role, moveSelectors.zip(moveSelectorProps).toMap, Map(), source))
@@ -100,7 +100,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
 object Player {
   def apply(moveSelectorProps: Seq[Props]): Player = new Player(moveSelectorProps)
 
-  case class Initialize(game: GameDescription, role: String)
+  case class Initialize(game: GameDescription, role: String, endTime: DateTime)
 
   case class Initialized(metadata: Any)
 

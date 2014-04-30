@@ -32,7 +32,7 @@ abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) 
 
     val game = GameDescription(Source.fromFile(s"src/test/resources/games/$gameName.kif").mkString)
     val players = game.roles.zip(moveSelectorProps.map { system.actorOf }).map { case (role, player) =>
-      player ! Initialize(game, role)
+      player ! Initialize(game, role, DateTime.now().plus(10000))
       val metadata = receiveOne(10.seconds).asInstanceOf[Initialized].metadata
       (role, (player, metadata))
     }.toMap

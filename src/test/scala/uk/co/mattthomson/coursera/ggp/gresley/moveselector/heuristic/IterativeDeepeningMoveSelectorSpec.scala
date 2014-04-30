@@ -41,7 +41,7 @@ class IterativeDeepeningMoveSelectorSpec extends TestKit(ActorSystem("TestActorS
     val game = GameDescription(Source.fromFile(s"src/test/resources/games/$gameName.kif").mkString)
     val players = game.roles.zip(moveSelectorProps).map { case (role, props) =>
       val player = system.actorOf(props)
-      player ! Initialize(game, role)
+      player ! Initialize(game, role, DateTime.now().plus(10000))
 
       val metadata = receiveOne(10.seconds).asInstanceOf[Initialized].metadata
       player ! PoisonPill
