@@ -174,12 +174,12 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     GameDescription(game)
   }
 
-  it should "parse English Draughts" ignore {
+  it should "parse English Draughts" in {
     val game = Source.fromFile("src/test/resources/games/englishDraughts.kif").mkString
     GameDescription(game)
   }
 
-  it should "parse Four-Player Free-For-All" ignore {
+  it should "parse Four-Player Free-For-All" in {
     val game = Source.fromFile("src/test/resources/games/4pffa.kif").mkString
     GameDescription(game)
   }

@@ -8,6 +8,6 @@ class BoundedDepthSearchMoveSelectorSpec extends MoveSelectorSpec {
   "The bounded depth search move selector" should "play Hunter" in {
     val finalState = playGame("hunter", List(Props(new BoundedDepthSearchMoveSelector(3))))
 
-    finalState.value("robot") should be (22)
+    finalState.value("robot") should be (11)
   }
 }

@@ -12,6 +12,7 @@ case class LiteralTerm(name: String) extends Term {
   override def matches(term: Term) = term match {
     case LiteralTerm(otherName) => if (name == otherName) Some(Map()) else None
     case VariableTerm(otherName) => Some(Map(otherName -> name))
+    case _ => None
   }
 
   override def toString = name
@@ -26,6 +27,7 @@ case class VariableTerm(name: String) extends Term {
   override def matches(term: Term) = term match {
     case LiteralTerm(otherName) => Some(Map(name -> otherName))
     case VariableTerm(otherName) => if (name == otherName) Some(Map()) else None
+    case _ => None
   }
 
   override def toString = s"?$name"

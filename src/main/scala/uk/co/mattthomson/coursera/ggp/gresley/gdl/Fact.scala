@@ -15,7 +15,7 @@ case class Role(private val nameTerm: Term) extends Fact {
   }
 }
 
-case class Relation(name: Term, terms: Seq[Term]) extends Fact {
+case class Relation(name: Term, terms: Seq[Term]) extends Fact with Term {
   override def substitute(values: Map[String, String]) = Relation(name.substitute(values), terms.map(_.substitute(values)))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
@@ -23,6 +23,11 @@ case class Relation(name: Term, terms: Seq[Term]) extends Fact {
       case Some(v) => Term.matchTerms(terms, otherTerms, values ++ v)
       case None => None
     }
+    case _ => None
+  }
+
+  override def matches(term: Term): Option[Map[String, String]] = term match {
+    case r: Relation => r.matches(this, Map())
     case _ => None
   }
 }

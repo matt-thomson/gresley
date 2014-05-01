@@ -40,7 +40,7 @@ class GdlParser extends RegexParsers {
   private def action = singleAction | multipleAction
 
   private def singleRelation = term ^^ { name => Relation(name, Nil) }
-  private def multipleRelation = "(" ~> term ~ term.* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
+  private def multipleRelation: Parser[Relation] = "(" ~> term ~ (term | multipleRelation).* <~ ")" ^^ { case name ~ terms => Relation(name, terms) }
   private def relation = singleRelation | multipleRelation
 
   private def role = """\(\s*role""".r ~> term <~ ")" ^^ { role => Role(role) }

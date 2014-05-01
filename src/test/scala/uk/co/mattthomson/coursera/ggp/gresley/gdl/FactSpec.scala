@@ -63,11 +63,11 @@ class FactSpec extends FlatSpec with ShouldMatchers {
   }
 
   "An action" should "substitute values where possible" in {
-    val fact = Action("test", List(VariableTerm("x"), "a", VariableTerm("q"), VariableTerm("z")))
+    val fact = Action(VariableTerm("y"), List(VariableTerm("x"), "a", VariableTerm("q"), VariableTerm("z")))
     val values = Map("x" -> "1", "y" -> "2", "z" -> "3")
 
     val result = fact.substitute(values)
-    result.name should be ("test")
+    result.name should be (LiteralTerm("2"))
 
     val expectedTerms: List[Term] = List("1", "a", VariableTerm("q"), "3")
     result.terms should be (expectedTerms)

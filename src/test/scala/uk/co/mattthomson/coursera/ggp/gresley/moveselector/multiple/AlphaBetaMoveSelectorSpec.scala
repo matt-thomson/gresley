@@ -8,7 +8,7 @@ class AlphaBetaMoveSelectorSpec extends MoveSelectorSpec {
   "The alpha-beta move selector" should "play Tic Tac Toe 3" in {
     val finalState = playGame("tictactoe3", List(Props[AlphaBetaMoveSelector], Props[LegalMoveSelector]))
 
-    finalState.value("white") should be (50)
+    finalState.value("white") should be (100)
   }
 
   it should "play Tic Tac Toe 5" in {
