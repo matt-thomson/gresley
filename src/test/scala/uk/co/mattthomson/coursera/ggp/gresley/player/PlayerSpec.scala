@@ -19,30 +19,30 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
   "A player" should "initialize" in {
     val player = system.actorOf(Props(new Player(Seq(Props[DummyMoveSelector]))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
   }
 
   it should "select a move" in {
     val player = system.actorOf(Props(new Player(Seq(Props[DummyMoveSelector]))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
   it should "keep player state up to date" in {
     val player = system.actorOf(Props(new Player(Seq(Props[DummyMoveSelector]))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -52,10 +52,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
       Props(new DelayMoveSelector(50.milliseconds))
     ))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -65,10 +65,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
       Props[DummyMoveSelector]
     ))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hello", Nil))
   }
 
@@ -78,13 +78,13 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
       Props[DummyMoveSelector]
     ))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -93,10 +93,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
       Props(new DelayMoveSelector(1.1.seconds))
     ))))
 
-    player ! NewGame(game, "black", self, 3.seconds)
+    player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 3.seconds)
+    player ! SelectMove(self, 6.seconds)
     expectMsg(Action("left", Nil))
   }
 }
