@@ -23,7 +23,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
       val moveSelectors = moveSelectorProps.map(context.actorOf)
       moveSelectors.foreach(_ ! Initialize(game, role, DateTime.now().plus(timeout.toMillis)))
 
-      context.system.scheduler.scheduleOnce(timeout - 2.seconds, self, Timeout)
+      context.system.scheduler.scheduleOnce(timeout - 5.seconds, self, Timeout)
       context.become(awaitInitialize(game, role, moveSelectors.zip(moveSelectorProps).toMap, Map(), source))
   }
 
@@ -62,7 +62,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
         (moveSelector, props)
       }.toMap
 
-      context.system.scheduler.scheduleOnce(timeout - 2.seconds, self, Timeout)
+      context.system.scheduler.scheduleOnce(timeout - 5.seconds, self, Timeout)
       context.become(awaitMove(game, role, state, moveSelectors, metadatas, None, source))
   }
 
