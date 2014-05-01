@@ -81,7 +81,11 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
         case None => Some((p, action))
       })
 
-      context.become(awaitMove(game, role, state, moveSelectors, metadatas, updatedBestAction, source))
+      val propsToKill = props.map { p: Props => moveSelectorProps.dropWhile(_ != p).tail }.toList.flatten
+      val actorsToKill = moveSelectors.filter { case (actor, p) => propsToKill.contains(p) }.map { case (actor, _) => actor}
+      actorsToKill.foreach(_ ! PoisonPill)
+
+      context.become(awaitMove(game, role, state, moveSelectors -- actorsToKill, metadatas, updatedBestAction, source))
 
     case Timeout =>
       moveSelectors.keys.foreach(_ ! PoisonPill)
