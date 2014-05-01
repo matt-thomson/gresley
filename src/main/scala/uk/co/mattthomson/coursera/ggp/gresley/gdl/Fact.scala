@@ -36,16 +36,19 @@ case class Base(fact: Fact) extends Fact {
   }
 }
 
-case class Action(name: String, terms: Seq[Term]) extends Fact {
-  override def substitute(values: Map[String, String]) = Action(name, terms.map(_.substitute(values)))
+case class Action(name: Term, terms: Seq[Term]) extends Fact {
+  override def substitute(values: Map[String, String]) = Action(name.substitute(values), terms.map(_.substitute(values)))
 
   override def matches(completeFact: Fact, values: Map[String, String]) = completeFact match {
-    case Action(otherName, otherTerms) => if (name != otherName) None else Term.matchTerms(terms, otherTerms, values)
+    case Action(otherName, otherTerms) => name.substitute(values).matches(otherName.substitute(values)) match {
+      case Some(v) => Term.matchTerms(terms, otherTerms, values ++ v)
+      case None => None
+    }
     case _ => None
   }
 
   override def toString = terms match {
-    case Nil => name
+    case Nil => name.toString
     case _ => s"($name ${terms.mkString(" ")})"
   }
 }

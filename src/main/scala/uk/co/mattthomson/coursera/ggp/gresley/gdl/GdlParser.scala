@@ -35,8 +35,8 @@ class GdlParser extends RegexParsers {
   private def statement: Parser[Statement] = conditional | fact
   private def fact: Parser[Fact] = role | relation | base | input | init | legal | next | goal | terminal
 
-  private def singleAction = name ^^ { name => Action(name, Nil) }
-  private def multipleAction = "(" ~> name ~ term.* <~ ")" ^^ { case name ~ terms => Action(name, terms) }
+  private def singleAction = term ^^ { name => Action(name, Nil) }
+  private def multipleAction = "(" ~> term ~ term.* <~ ")" ^^ { case name ~ terms => Action(name, terms) }
   private def action = singleAction | multipleAction
 
   private def singleRelation = term ^^ { name => Relation(name, Nil) }
