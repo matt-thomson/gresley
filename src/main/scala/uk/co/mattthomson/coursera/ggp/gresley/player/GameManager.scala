@@ -1,7 +1,7 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import akka.actor.{PoisonPill, ActorRef, Props, Actor}
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{PlayersMoved, NewGame, SelectMove, GamesInProgress}
+import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{NewGame, SelectMove, GamesInProgress}
 import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Stop
@@ -23,13 +23,7 @@ class GameManager(playerFactory: Seq[Props] => Actor, moveSelectorPropsFactory: 
       context.become(handle(players + (id -> (player, playClock))))
     case Play(id, moves) =>
       val (player, playClock) = players(id)
-
-      moves match {
-        case Some(m) => player ! PlayersMoved(m)
-        case None =>
-      }
-
-      player ! SelectMove(sender, playClock)
+      player ! SelectMove(sender, moves, playClock)
     case Stop(id, _) =>
       sender ! "done"
       val (player, _) = players(id)
@@ -50,9 +44,7 @@ class GameManager(playerFactory: Seq[Props] => Actor, moveSelectorPropsFactory: 
 object GameManager {
   case class NewGame(game: GameDescription, role: String, source: ActorRef, timeout: FiniteDuration)
 
-  case class PlayersMoved(moves: Seq[Action])
-
-  case class SelectMove(source: ActorRef, timeout: FiniteDuration)
+  case class SelectMove(source: ActorRef, moves: Option[Seq[Action]], timeout: FiniteDuration)
 
   case object GamesInProgress
 }

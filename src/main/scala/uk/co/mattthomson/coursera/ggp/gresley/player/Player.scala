@@ -6,7 +6,6 @@ import scala.concurrent.duration._
 import scala.util.Random
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameDescription, GameState}
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player._
-import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.PlayersMoved
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Play
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.NewGame
@@ -48,22 +47,23 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
   }
 
   private def handle(game: GameDescription, role: String, state: GameState, metadatas: Map[Props, Any]): Receive = {
-    case PlayersMoved(moves) =>
-      val actions = game.roles.zip(moves).toMap
-      context.become(handle(game, role, state.update(actions), metadatas))
+    case SelectMove(source, moves, timeout) =>
+      val updatedState = moves match {
+        case Some(m) => state.update(game.roles.zip(m).toMap)
+        case None => state
+      }
 
-    case SelectMove(source, timeout) =>
-      log.info(s"Current state:\n${state.trueFacts.mkString("\n")}")
-      log.info(s"Legal actions:\n${state.legalActions(role).mkString("\n")}")
+      log.info(s"Current state:\n${updatedState.trueFacts.mkString("\n")}")
+      log.info(s"Legal actions:\n${updatedState.legalActions(role).mkString("\n")}")
 
       val moveSelectors = metadatas.map { case (props, metadata) =>
         val moveSelector = context.actorOf(props)
-        moveSelector ! Play(game, state, role, DateTime.now().plus(timeout.toMillis), metadata)
+        moveSelector ! Play(game, updatedState, role, DateTime.now().plus(timeout.toMillis), metadata)
         (moveSelector, props)
       }.toMap
 
       context.system.scheduler.scheduleOnce(timeout - 5.seconds, self, Timeout)
-      context.become(awaitMove(game, role, state, moveSelectors, metadatas, None, source))
+      context.become(awaitMove(game, role, updatedState, moveSelectors, metadatas, None, source))
   }
 
   private def awaitMove(game: GameDescription,

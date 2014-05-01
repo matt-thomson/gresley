@@ -76,7 +76,7 @@ class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatS
 class DummyPlayer extends Actor {
   override def receive: Receive = {
     case NewGame(_, _, source, _) => source ! Ready
-    case SelectMove(source, _) => source ! Action("left", Nil)
+    case SelectMove(source, _, _) => source ! Action("left", Nil)
   }
 }
 

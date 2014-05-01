@@ -29,7 +29,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -39,10 +39,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -55,7 +55,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -68,7 +68,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hello", Nil))
   }
 
@@ -81,10 +81,10 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("hi", Nil))
   }
 
@@ -96,7 +96,7 @@ class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec w
     player ! NewGame(game, "black", self, 6.seconds)
     expectMsg(Ready)
 
-    player ! SelectMove(self, 6.seconds)
+    player ! SelectMove(self, None, 6.seconds)
     expectMsg(Action("left", Nil))
   }
 }
