@@ -19,8 +19,8 @@ abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) 
       if (state.isTerminal) state
       else {
         val selectedMoves = players.map { case (role, (player, metadata)) =>
-          player ! Play(game, state, role, DateTime.now().plus(10000), metadata)
-          (role, receiveOne(10.seconds).asInstanceOf[SelectedMove])
+          player ! Play(game, state, role, DateTime.now().plus(20000), metadata)
+          (role, receiveOne(20.seconds).asInstanceOf[SelectedMove])
         }.toMap
 
         val actions = selectedMoves.map { case (role, SelectedMove(action)) => (role, action) }.toMap
@@ -32,8 +32,8 @@ abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) 
 
     val game = GameDescription(Source.fromFile(s"src/test/resources/games/$gameName.kif").mkString)
     val players = game.roles.zip(moveSelectorProps.map { system.actorOf }).map { case (role, player) =>
-      player ! Initialize(game, role, DateTime.now().plus(10000))
-      val metadata = receiveOne(10.seconds).asInstanceOf[Initialized].metadata
+      player ! Initialize(game, role, DateTime.now().plus(20000))
+      val metadata = receiveOne(20.seconds).asInstanceOf[Initialized].metadata
       (role, (player, metadata))
     }.toMap
 
