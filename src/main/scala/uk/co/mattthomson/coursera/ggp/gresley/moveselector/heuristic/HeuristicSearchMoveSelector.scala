@@ -5,6 +5,7 @@ import akka.actor.{Actor, ActorLogging}
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{SelectedMove, Play, Initialized, Initialize}
 import uk.co.mattthomson.coursera.ggp.gresley.moveselector.TimeoutChecker
 import org.joda.time.DateTime
+import scala.util.Random
 
 abstract class HeuristicSearchMoveSelector(depthLimit: Int) extends Actor with ActorLogging with TimeoutChecker {
   override def receive: Receive = {
@@ -19,7 +20,7 @@ abstract class HeuristicSearchMoveSelector(depthLimit: Int) extends Actor with A
 
   private def bestMove(state: GameState, role: String, otherRoles: Seq[String], endTime: DateTime) = {
     checkStillRunning(endTime)
-    val legalActions = state.legalActions(role)
+    val legalActions = Random.shuffle(state.legalActions(role))
     if (legalActions.size == 1) legalActions.head else {
       val initialAction: Option[Action] = None
       val (_, bestAction) = legalActions.foldLeft((-1, initialAction))(tryNextMinScore(state, role, otherRoles, 101, 1, endTime))

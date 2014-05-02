@@ -61,6 +61,7 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
       }
 
       log.info(s"Current state:\n${updatedState.trueFacts.mkString("\n")}")
+      log.info(s"Legal actions:\n${updatedState.legalActions(role).mkString("\n")}")
 
       val moveSelectors = metadatas.map { case (props, metadata) =>
         val moveSelector = context.actorOf(props)
