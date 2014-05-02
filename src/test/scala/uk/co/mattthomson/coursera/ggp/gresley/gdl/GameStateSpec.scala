@@ -289,4 +289,23 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
     state.value("oplayer") should be (0)
     state.value("xplayer") should be (100)
   }
+
+  it should "move to the next state in Chinese Checkers correctly" in {
+    val game = GameDescription(Source.fromFile("src/test/resources/games/chinesecheckers1.kif").mkString)
+    game.initialState.trueFacts should be (Set(
+      Relation("cell", List("a1", "red")),
+      Relation("cell", List("b1", "red")),
+      Relation("cell", List("b2", "red")),
+      Relation("step", List("1"))
+    ))
+
+    val state = game.initialState.update(Map("red" -> Action("move", List("a1", "c3"))))
+
+    state.trueFacts should be (Set(
+      Relation("cell", List("b1", "red")),
+      Relation("cell", List("b2", "red")),
+      Relation("cell", List("c3", "red")),
+      Relation("step", List("2"))
+    ))
+  }
 }

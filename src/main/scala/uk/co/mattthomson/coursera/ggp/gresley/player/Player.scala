@@ -15,14 +15,17 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.SelectedMove
 
 class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
+  private val timeoutLeeway = 5.seconds
+
   import context.dispatcher
 
   override def receive = {
     case NewGame(game, role, source, timeout) =>
-      val moveSelectors = moveSelectorProps.map(context.actorOf)
-      moveSelectors.foreach(_ ! Initialize(game, role, DateTime.now().plus(timeout.toMillis)))
+      context.system.scheduler.scheduleOnce(timeout - timeoutLeeway, self, Timeout)
 
-      context.system.scheduler.scheduleOnce(timeout - 5.seconds, self, Timeout)
+      val moveSelectors = moveSelectorProps.map(context.actorOf)
+      moveSelectors.foreach(_ ! Initialize(game, role, DateTime.now().plus((timeout - timeoutLeeway).toMillis)))
+
       context.become(awaitInitialize(game, role, moveSelectors.zip(moveSelectorProps).toMap, Map(), source))
   }
 
@@ -42,27 +45,29 @@ class Player(moveSelectorProps: Seq[Props]) extends Actor with ActorLogging {
       
     case Timeout =>
       moveSelectors.keys.foreach(_ ! PoisonPill)
+      val initialState = game.initialState
+
       source ! Ready
-      context.become(handle(game, role, game.initialState, metadatas))
+      context.become(handle(game, role, initialState, metadatas))
   }
 
   private def handle(game: GameDescription, role: String, state: GameState, metadatas: Map[Props, Any]): Receive = {
     case SelectMove(source, moves, timeout) =>
+      context.system.scheduler.scheduleOnce(timeout - timeoutLeeway, self, Timeout)
+
       val updatedState = moves match {
         case Some(m) => state.update(game.roles.zip(m).toMap)
         case None => state
       }
 
       log.info(s"Current state:\n${updatedState.trueFacts.mkString("\n")}")
-      log.info(s"Legal actions:\n${updatedState.legalActions(role).mkString("\n")}")
 
       val moveSelectors = metadatas.map { case (props, metadata) =>
         val moveSelector = context.actorOf(props)
-        moveSelector ! Play(game, updatedState, role, DateTime.now().plus(timeout.toMillis), metadata)
+        moveSelector ! Play(game, updatedState, role, DateTime.now().plus((timeout - timeoutLeeway).toMillis), metadata)
         (moveSelector, props)
       }.toMap
 
-      context.system.scheduler.scheduleOnce(timeout - 5.seconds, self, Timeout)
       context.become(awaitMove(game, role, updatedState, moveSelectors, metadatas, None, source))
   }
 
