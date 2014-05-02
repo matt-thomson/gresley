@@ -24,9 +24,9 @@ class GdlParser extends RegexParsers {
     "not\\b".r |
     "or\\b".r
 
-  private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9_]+".r
+  private def name: Parser[String] = not(reserved) ~> "[a-zA-Z0-9]+".r
   private def variableName: Parser[String] = "[a-zA-Z0-9]+".r
-  private def id: Parser[String] = """[a-zA-Z0-9\.\-]+""".r
+  private def id: Parser[String] = """[a-zA-Z0-9\.\-\_]+""".r
 
   private def term = variableTerm | literalTerm
   private def variableTerm = "?" ~> variableName ^^ { name => VariableTerm(name) }
