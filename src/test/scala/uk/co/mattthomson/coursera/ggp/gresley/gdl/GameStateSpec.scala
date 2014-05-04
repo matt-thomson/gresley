@@ -9,6 +9,9 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
     val game = new GameDescription(List(
       Relation("cell", List("1")),
       Relation("cell", List("2")),
+      Input(Role("black"), Action("move", List("1"))),
+      Input(Role("black"), Action("move", List("2"))),
+      Input(Role("black"), Action("move", List("3"))),
       Conditional(Legal(Role("black"), Action("move", List(VariableTerm("x")))), List(
         FactCondition(Relation("cell", List(VariableTerm("x"))))
       ))
@@ -24,6 +27,9 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
   it should "find the legal moves based on the state" in {
     val game = new GameDescription(List(
+      Input(Role("black"), Action("move", List("1"))),
+      Input(Role("black"), Action("move", List("2"))),
+      Input(Role("black"), Action("move", List("3"))),
       Conditional(Legal(Role("black"), Action("move", List(VariableTerm("x")))), List(
         StateCondition(Relation("cell", List(VariableTerm("x"))))
       ))
@@ -42,6 +48,10 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
   it should "apply distinct moves" in {
     val game = new GameDescription(List(
+      Input(Role("black"), Action("move", List("1", "2"))),
+      Input(Role("black"), Action("move", List("2", "1"))),
+      Input(Role("black"), Action("move", List("1", "1"))),
+      Input(Role("black"), Action("move", List("2", "2"))),
       Conditional(Legal(Role("black"), Action("move", List(VariableTerm("x"), VariableTerm("y")))), List(
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("cell", List(VariableTerm("y")))),
@@ -63,6 +73,9 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
   it should "move to the next state" in {
     val game = new GameDescription(List(
       Relation("succ", List("1", "2")),
+      Base(Relation("step", List("1"))),
+      Base(Relation("step", List("2"))),
+      Base(Relation("step", List("3"))),
       Conditional(Next(Relation("step", List(VariableTerm("y")))), List(
         StateCondition(Relation("step", List(VariableTerm("x")))),
         FactCondition(Relation("succ", List(VariableTerm("x"), VariableTerm("y"))))
@@ -81,6 +94,9 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
   it should "move to the next state using false fact rules" in {
     val game = new GameDescription(List(
       Relation("step", List("1")),
+      Base(Relation("step", List("1"))),
+      Base(Relation("step", List("2"))),
+      Base(Relation("step", List("3"))),
       Conditional(Next(Relation("step", List("1"))), List(
         FalseCondition(FactCondition(Relation("step", List("1"))))
       )),
@@ -117,6 +133,8 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
   it should "move to the next state based on moves" in {
     val game = new GameDescription(List(
       Role("black"),
+      Base(Relation("position", List("1"))),
+      Base(Relation("position", List("2"))),
       Conditional(Next(Relation("position", List(VariableTerm("x")))), List(
         ActionCondition(Role("black"), Action("move", List(VariableTerm("x"))))
       ))

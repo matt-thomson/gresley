@@ -50,7 +50,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     )
     val description = GameDescription(facts)
 
-    description.constantFacts should be (facts.toSet)
+    description.constantFacts(classOf[Relation]) should be (facts.toSet)
   }
 
   it should "process conditional relations correctly" in {
@@ -62,7 +62,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.constantFacts should be (Set(
+    description.constantFacts(classOf[Relation]) should be (Set(
       Relation("row", List("1")),
       Relation("row", List("2")),
       Relation("cell", List("1", "1")),
@@ -80,8 +80,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.constantFacts should be (Set(
-      Role("black"),
+    description.constantFacts(classOf[Relation]) should be (Set(
       Relation("move", List("black", "1")),
       Relation("row", List("1"))
     ))
@@ -98,7 +97,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
       ))
     ))
 
-    description.constantFacts should be (Set(
+    description.constantFacts(classOf[Relation]) should be (Set(
       Relation("next", List("1", "2")),
       Relation("next", List("2", "3")),
       Relation("number", List("1")),
@@ -118,8 +117,8 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.constantFacts.contains(Relation("succ", List("1", "2"))) should be (true)
-    description.constantFacts.contains(Relation("adjacent", List("a", "b"))) should be (true)
+    description.constantFacts(classOf[Relation]).contains(Relation("succ", List("1", "2"))) should be (true)
+    description.constantFacts(classOf[Relation]).contains(Relation("adjacent", List("a", "b"))) should be (true)
   }
 
   it should "have the correct base facts" in {

@@ -8,7 +8,7 @@ class GoalProximityHeuristicMoveSelectorSpec extends MoveSelectorSpec {
   "The goal proximity heuristic search move selector" should "play Hunter" in {
     val finalState = playGame("hunter", List(Props(new GoalProximityHeuristicSearchMoveSelector(3))))
 
-    finalState.value("robot") should be (87)
+    finalState.value("robot") should be (75)
   }
 
   it should "play Alquerque" ignore {

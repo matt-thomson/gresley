@@ -2,7 +2,11 @@ package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 case class GameDescription(statements: Seq[Statement]) {
   lazy val constantFacts = {
-    val simpleFacts: Set[Fact] = statements.collect { case f: Fact => f }.toSet
+    val simpleFacts = statements.collect { case f: Fact => f }
+      .toSet
+      .groupBy { f: Fact => f.getClass.asInstanceOf[Class[_]] }
+      .toMap
+
     val conditionals: Set[Conditional] = statements
       .collect { case c: Conditional => c }
       .filter { c => c.conditions.forall(_.isInstanceOf[FactCondition]) }
@@ -14,19 +18,18 @@ case class GameDescription(statements: Seq[Statement]) {
   lazy val roles = statements.collect { case Role(LiteralTerm(role)) => role }
 
   lazy val initialState = {
-    val simpleFacts: Set[Fact] = statements.collect { case f: Init => f }.toSet
+    val simpleFacts: Set[Fact] = statements.collect { case Init(fact) => fact }.toSet
     val conditionals: Set[Conditional] = statements
       .collect { case c: Conditional => c }
       .filter { c => c.conclusion.isInstanceOf[Init] }
       .toSet
 
-    val allFacts = propagateConditionals(constantFacts ++ simpleFacts, conditionals)
-    new GameState(this, allFacts.collect { case f: Init => f.fact })
+    val allFacts: Map[Class[_], Set[Fact]] = propagateConditionals(constantFacts + (classOf[Init] -> simpleFacts), conditionals)
+    new GameState(this, allFacts.getOrElse(classOf[Init], Set()))
   }
 
-  lazy val baseFacts = constantFacts.collect {
-    case Base(fact) => fact
-  }
+  lazy val baseFacts = constantFacts.getOrElse(classOf[Base], Set())
+    .map { case Base(fact) => fact }
 
   lazy val legalMoveRules = statements
     .collect { case c: Conditional => c }
@@ -53,11 +56,13 @@ case class GameDescription(statements: Seq[Statement]) {
     .filter { c => c.conclusion.isInstanceOf[Relation] }
     .toSet
 
-  def actions(role: String) = constantFacts.collect {
-    case Input(Role(LiteralTerm(`role`)), action) => action
-  }
+  lazy val actions = constantFacts.getOrElse(classOf[Input], Set())
+    .map { case Input(Role(LiteralTerm(role)), action) => (role, action) }
+    .groupBy { case (role, _) => role }
+    .map { case (role, as) => (role, as.map { case (_, a) => a}) }
+    .toMap
 
-  private def propagateConditionals(simpleFacts: Set[Fact], conditionals: Set[Conditional]): Set[Fact] = {
+  private def propagateConditionals(simpleFacts: Map[Class[_], Set[Fact]], conditionals: Set[Conditional]): Map[Class[_], Set[Fact]] = {
     val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f, Map(), None) }
     if (simpleFacts == updatedFacts) simpleFacts else propagateConditionals(updatedFacts, conditionals)
   }

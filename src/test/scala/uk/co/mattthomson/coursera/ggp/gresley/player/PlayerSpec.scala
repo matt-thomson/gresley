@@ -14,7 +14,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 
 class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender {
-  private val game = GameDescription("(role black) (legal black left)")
+  private val game = GameDescription("(role black) (input black left) (legal black left)")
 
   "A player" should "initialize" in {
     val player = system.actorOf(Props(new Player(Seq(Props[DummyMoveSelector]))))

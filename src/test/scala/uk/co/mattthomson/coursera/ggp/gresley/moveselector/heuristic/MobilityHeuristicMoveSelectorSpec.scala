@@ -8,7 +8,7 @@ class MobilityHeuristicMoveSelectorSpec extends MoveSelectorSpec {
    "The mobility heuristic search move selector" should "play Hunter" in {
      val finalState = playGame("hunter", List(Props(new MobilityHeuristicSearchMoveSelector(3))))
 
-     finalState.value("robot") should be (11)
+     finalState.value("robot") should be (22)
    }
 
    it should "play Alquerque" ignore {
