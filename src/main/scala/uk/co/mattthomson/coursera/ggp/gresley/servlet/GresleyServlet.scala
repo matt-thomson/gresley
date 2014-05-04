@@ -16,7 +16,7 @@ class GresleyServlet(system: ActorSystem, moveSelectorPropsFactory: MoveSelector
   private val logger = LoggerFactory.getLogger(getClass)
   private val manager = system.actorOf(Props(new GameManager(Player(_), moveSelectorPropsFactory)))
 
-  implicit val defaultTimeout = Timeout(1.minute)
+  implicit val defaultTimeout = Timeout(3.minutes)
 
   override protected implicit def executor = system.dispatcher
 

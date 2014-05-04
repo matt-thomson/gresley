@@ -22,20 +22,18 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
       context.system.scheduler.scheduleOnce(timeLeft - 2.seconds, self, StopExploring)
       context.system.scheduler.scheduleOnce(timeLeft - 1.seconds, self, SelectResult)
 
-      val legalActions = state.legalActions(role)
-      val explorers = legalActions.map { action =>
-        val explorer = context.actorOf(Props(new MonteCarloTreeExplorer(state, role, action)))
-        explorer ! Explore
-
-        explorer
-      }
+      val legalActions = state.legalActions(role).toList
+      val explorer = context.actorOf(Props(new MonteCarloTreeExplorer(state, role)))
+      explorer ! Explore(legalActions.head)
       val results = legalActions.map { action => (action, (0, 0)) }.toMap
 
-      context.become(awaitResults(sender, explorers, results, running = true))
+      context.become(awaitResults(sender, explorer, legalActions, legalActions.tail, results, running = true))
   }
 
   private def awaitResults(source: ActorRef,
-                           explorers: Set[ActorRef],
+                           explorer: ActorRef,
+                           allActions: Seq[Action],
+                           actions: Seq[Action],
                            results: Map[Action, (Int, Int)],
                            running: Boolean): Receive = LoggingReceive {
     case ExplorationResult(action, value) =>
@@ -43,20 +41,24 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
         case Some((oldTotal, oldCount)) =>
           val (newTotal, newCount) = (oldTotal + value, oldCount + 1)
           val updatedResults = results + (action -> (newTotal, newCount))
-
-          if (running) {
-            sender ! Explore
+          val updatedActions = actions match {
+            case Nil => allActions
+            case _ => actions
           }
 
-          context.become(awaitResults(source, explorers, updatedResults, running))
+          if (running) {
+            sender ! Explore(updatedActions.head)
+          }
+
+          context.become(awaitResults(source, explorer, allActions, updatedActions.tail, updatedResults, running))
 
         case None =>
       }
 
     case StopExploring =>
-      context.become(awaitResults(source, explorers, results, running = false))
+      context.become(awaitResults(source, explorer, allActions, actions, results, running = false))
     case SelectResult =>
-      explorers.foreach { _ ! PoisonPill }
+      explorer ! PoisonPill
 
       val (bestAction, _) = results.maxBy { case (_, (total, count)) =>
         if (count == 0) 0 else total.toDouble / count.toDouble
@@ -70,7 +72,7 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
 }
 
 object MonteCarloSearchMoveSelector {
-  case object Explore
+  case class Explore(nextMove: Action)
 
   case class ExplorationResult(action: Action, value: Int)
 

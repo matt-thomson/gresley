@@ -4,13 +4,13 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
   private lazy val stateFacts = propagateConditionals(game.constantFacts, Map(), game.stateRules)
 
   lazy val legalActions = {
-    def isLegal(role: String)(action: Action): Boolean = {
-      val fact = Legal(Role(role), action)
-      game.constantFacts.getOrElse(classOf[Legal], Set()).contains(fact) ||
-        game.legalMoveRules.exists { rule => rule.proves(fact, stateFacts, Map(), Some(this)) }
-    }
-
     game.actions.map { case (role, as) => (role, as.filter(isLegal(role))) }
+  }
+
+  def isLegal(role: String)(action: Action): Boolean = {
+    val fact = Legal(Role(role), action)
+    game.constantFacts.getOrElse(classOf[Legal], Set()).contains(fact) ||
+      game.legalMoveRules.exists { rule => rule.proves(fact, stateFacts, Map(), Some(this)) }
   }
 
   def update(actions: Map[String, Action]) = {
@@ -20,8 +20,8 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
         game.nextStateRules.exists { rule => rule.proves(nextFact, stateFacts, actions, Some(this)) }
     }
 
-    val actionsWithRoles: Map[Role, Action] = actions.map { case (role, action) => (Role(role), action) }.toMap
-    val updatedStateFacts: Map[Class[_], Set[Fact]] = propagateConditionals(stateFacts, actionsWithRoles, game.stateRules)
+    val actionsWithRoles = actions.map { case (role, action) => (Role(role), action) }.toMap
+    val updatedStateFacts = propagateConditionals(stateFacts, actionsWithRoles, game.stateRules)
 
     val facts = game.baseFacts.filter(isTrue(updatedStateFacts, actionsWithRoles))
 
@@ -40,6 +40,8 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
 
   private def propagateConditionals(facts: Map[Class[_], Set[Fact]], moves: Map[Role, Action], conditionals: Set[Conditional]): Map[Class[_], Set[Fact]] = {
     val updatedFacts = conditionals.foldLeft(facts) { case (f, conditional) => conditional.propagate(f, moves, Some(this)) }
-    if (facts == updatedFacts) facts else propagateConditionals(updatedFacts, moves, conditionals)
+
+    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
+    if (totalSize(facts) == totalSize(updatedFacts)) facts else propagateConditionals(updatedFacts, moves, conditionals)
   }
 }
