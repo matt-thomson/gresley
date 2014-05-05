@@ -1,10 +1,12 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.FactTag._
+
 case class GameDescription(statements: Seq[Statement]) {
   lazy val constantFacts = {
     val simpleFacts = statements.collect { case f: Fact => f }
       .toSet
-      .groupBy { f: Fact => f.getClass.asInstanceOf[Class[_]] }
+      .groupBy { f: Fact => f.tag }
       .toMap
 
     val conditionals: Set[Conditional] = statements
@@ -18,13 +20,13 @@ case class GameDescription(statements: Seq[Statement]) {
   lazy val roles = statements.collect { case Role(LiteralTerm(role)) => role }
 
   lazy val initialState = {
-    val simpleFacts: Set[Fact] = statements.collect { case Init(fact) => fact }.toSet
-    val conditionals: Set[Conditional] = statements
+    val simpleFacts = statements.collect { case Init(fact) => fact }.toSet
+    val conditionals = statements
       .collect { case c: Conditional => c }
       .filter { c => c.conclusion.isInstanceOf[Init] }
       .toSet
 
-    val allFacts: Map[Class[_], Set[Fact]] = propagateConditionals(constantFacts + (classOf[Init] -> simpleFacts), conditionals)
+    val allFacts = propagateConditionals(constantFacts + (FactTag(classOf[Init]) -> simpleFacts), conditionals)
     new GameState(this, allFacts.getOrElse(classOf[Init], Set()))
   }
 
@@ -90,7 +92,7 @@ case class GameDescription(statements: Seq[Statement]) {
     .map { case (role, as) => (role, as.map { case (_, a) => a}) }
     .toMap
 
-  private def propagateConditionals(simpleFacts: Map[Class[_], Set[Fact]], conditionals: Set[Conditional]): Map[Class[_], Set[Fact]] = {
+  private def propagateConditionals(simpleFacts: Map[FactTag, Set[Fact]], conditionals: Set[Conditional]): Map[FactTag, Set[Fact]] = {
     val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f, Map(), None) }
 
     def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum

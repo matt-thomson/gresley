@@ -1,10 +1,9 @@
 package uk.co.mattthomson.coursera.ggp.gresley.moveselector.statistical
 
 import akka.actor._
-import akka.event.LoggingReceive
 import org.joda.time.DateTime
 import scala.concurrent.duration._
-import uk.co.mattthomson.coursera.ggp.gresley.moveselector.statistical.MonteCarloSearchMoveSelector.{SelectResult, StopExploring, Explore, ExplorationResult}
+import uk.co.mattthomson.coursera.ggp.gresley.moveselector.statistical.MonteCarloSearchMoveSelector.{Explore, SelectResult, StopExploring, ExplorationResult}
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Action
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Play
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
@@ -12,7 +11,9 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.SelectedMove
 
 class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
-  override def receive: Receive = LoggingReceive {
+  private val numExplorers = 3
+
+  override def receive: Receive = {
     case Initialize(game, role, _) => sender ! Initialized(())
 
     case Play(_, state, role, endTime, _) =>
@@ -22,52 +23,55 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
       context.system.scheduler.scheduleOnce(timeLeft - 2.seconds, self, StopExploring)
       context.system.scheduler.scheduleOnce(timeLeft - 1.seconds, self, SelectResult)
 
-      val legalActions = state.legalActions(role).toList
-      val explorer = context.actorOf(Props(new MonteCarloTreeExplorer(state, role)))
-      explorer ! Explore(legalActions.head)
-      val results = legalActions.map { action => (action, (0, 0)) }.toMap
+      val legalActions = state.legalActions(role).toSeq
+      val explorers = (1 to numExplorers).map(_ => context.actorOf(Props(new MonteCarloTreeExplorer(state, role, endTime))))
+      val actions = explorers.foldLeft(legalActions)(sendAction(legalActions))
 
-      context.become(awaitResults(sender, explorer, legalActions, legalActions.tail, results, running = true))
+      val results = legalActions.map { action => (action, MonteCarloCount()) }.toMap
+
+      context.become(awaitResults(sender, explorers, actions, legalActions, results, running = true))
   }
 
   private def awaitResults(source: ActorRef,
-                           explorer: ActorRef,
-                           allActions: Seq[Action],
+                           explorers: Seq[ActorRef],
                            actions: Seq[Action],
-                           results: Map[Action, (Int, Int)],
-                           running: Boolean): Receive = LoggingReceive {
+                           legalActions: Seq[Action],
+                           results: Map[Action, MonteCarloCount],
+                           running: Boolean): Receive = {
     case ExplorationResult(action, value) =>
       results.get(action) match {
-        case Some((oldTotal, oldCount)) =>
-          val (newTotal, newCount) = (oldTotal + value, oldCount + 1)
-          val updatedResults = results + (action -> (newTotal, newCount))
-          val updatedActions = actions match {
-            case Nil => allActions
-            case _ => actions
-          }
+        case Some(count) =>
+          val updatedCount = count.update(value)
+          val updatedResults = results + (action -> updatedCount)
+          val updatedActions = if (running) sendAction(legalActions)(actions, sender) else actions
 
-          if (running) {
-            sender ! Explore(updatedActions.head)
-          }
-
-          context.become(awaitResults(source, explorer, allActions, updatedActions.tail, updatedResults, running))
+          context.become(awaitResults(source, explorers, updatedActions, legalActions, updatedResults, running))
 
         case None =>
       }
 
     case StopExploring =>
-      context.become(awaitResults(source, explorer, allActions, actions, results, running = false))
+      context.become(awaitResults(source, explorers, actions, legalActions, results, running = false))
     case SelectResult =>
-      explorer ! PoisonPill
+      explorers.foreach(_ ! PoisonPill)
+      log.info("Monte Carlo values:\n" + results.map { case (action, count) => s"$action -> $count" }.mkString("\n"))
 
-      val (bestAction, _) = results.maxBy { case (_, (total, count)) =>
-        if (count == 0) 0 else total.toDouble / count.toDouble
-      }
+      val (bestAction, _) = results.maxBy { case (_, count) => count.value }
 
       log.info(s"Chosen action: $bestAction")
       source ! SelectedMove(bestAction)
 
       context.become(receive)
+  }
+
+  private def sendAction(legalActions: Seq[Action])(actions: Seq[Action], explorer: ActorRef) = {
+    val updatedActions = actions match {
+      case Nil => legalActions
+      case _ => actions
+    }
+
+    explorer ! Explore(updatedActions.head)
+    updatedActions.tail
   }
 }
 

@@ -14,7 +14,7 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
   }
 
   def update(actions: Map[String, Action]) = {
-    def isTrue(stateFacts: Map[Class[_], Set[Fact]], actions: Map[Role, Action])(fact: Fact): Boolean = {
+    def isTrue(stateFacts: Map[FactTag, Set[Fact]], actions: Map[Role, Action])(fact: Fact): Boolean = {
       val nextFact = Next(fact)
       game.constantFacts.getOrElse(classOf[Next], Set()).contains(nextFact) ||
         game.nextStateRules.exists { rule => rule.proves(nextFact, stateFacts, actions, Some(this)) }
@@ -38,7 +38,7 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
     .headOption
     .getOrElse(0)
 
-  private def propagateConditionals(facts: Map[Class[_], Set[Fact]], moves: Map[Role, Action], conditionals: Set[Conditional]): Map[Class[_], Set[Fact]] = {
+  private def propagateConditionals(facts: Map[FactTag, Set[Fact]], moves: Map[Role, Action], conditionals: Set[Conditional]): Map[FactTag, Set[Fact]] = {
     val updatedFacts = conditionals.foldLeft(facts) { case (f, conditional) => conditional.propagate(f, moves, Some(this)) }
 
     def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum

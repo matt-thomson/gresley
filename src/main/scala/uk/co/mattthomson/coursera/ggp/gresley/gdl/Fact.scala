@@ -1,9 +1,13 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
+import uk.co.mattthomson.coursera.ggp.gresley.gdl.FactTag._
+
 trait Fact extends Statement {
   def substitute(values: Map[String, String]): Fact
 
   def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]]
+
+  def tag: FactTag = getClass
 }
 
 case class Role(private val nameTerm: Term) extends Fact {
@@ -30,6 +34,8 @@ case class Relation(name: Term, terms: Seq[Term]) extends Fact with Term {
     case r: Relation => r.matches(this, Map())
     case _ => None
   }
+
+  override def tag = NamedFactTag(classOf[Relation], name.toString)
 }
 
 case class Base(fact: Fact) extends Fact {
