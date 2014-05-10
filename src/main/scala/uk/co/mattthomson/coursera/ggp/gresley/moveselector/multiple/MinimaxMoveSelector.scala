@@ -26,7 +26,7 @@ class MinimaxMoveSelector extends Actor with ActorLogging {
 
   private def minScore(state: GameState, role: String, otherRole: String)(action: Action): Int = {
     val otherActions = state.legalActions(otherRole)
-    val states: Set[GameState] = otherActions.map { otherAction =>
+    val states = otherActions.map { otherAction =>
       val actions = Map(role -> action, otherRole -> otherAction)
       state.update(actions)
     }

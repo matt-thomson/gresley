@@ -19,9 +19,9 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
     val state = new GameState(game, Set())
 
-    state.legalActions("black") should be (Set(
-      Action("move", List("1")),
-      Action("move", List("2"))
+    state.legalActions("black") should be (List(
+      Action("move", List("2")),
+      Action("move", List("1"))
     ))
   }
 
@@ -40,7 +40,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("cell", List("2"))
     ))
 
-    state.legalActions("black") should be (Set(
+    state.legalActions("black") should be (List(
       Action("move", List("1")),
       Action("move", List("2"))
     ))
@@ -64,7 +64,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("cell", List("2"))
     ))
 
-    state.legalActions("black") should be (Set(
+    state.legalActions("black") should be (List(
       Action("move", List("1", "2")),
       Action("move", List("2", "1"))
     ))

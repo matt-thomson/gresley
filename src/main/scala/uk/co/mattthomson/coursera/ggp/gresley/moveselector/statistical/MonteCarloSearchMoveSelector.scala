@@ -23,7 +23,7 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
       context.system.scheduler.scheduleOnce(timeLeft - 2.seconds, self, StopExploring)
       context.system.scheduler.scheduleOnce(timeLeft - 1.seconds, self, SelectResult)
 
-      val legalActions = state.legalActions(role).toSeq
+      val legalActions = state.legalActions(role)
       val explorers = (1 to numExplorers).map(_ => context.actorOf(Props(new MonteCarloTreeExplorer(state, role, endTime))))
       val actions = explorers.foldLeft(legalActions)(sendAction(legalActions))
 
@@ -34,8 +34,8 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
 
   private def awaitResults(source: ActorRef,
                            explorers: Seq[ActorRef],
-                           actions: Seq[Action],
-                           legalActions: Seq[Action],
+                           actions: List[Action],
+                           legalActions: List[Action],
                            results: Map[Action, MonteCarloCount],
                            running: Boolean): Receive = {
     case ExplorationResult(action, value) =>
@@ -64,7 +64,7 @@ class MonteCarloSearchMoveSelector extends Actor with ActorLogging {
       context.become(receive)
   }
 
-  private def sendAction(legalActions: Seq[Action])(actions: Seq[Action], explorer: ActorRef) = {
+  private def sendAction(legalActions: List[Action])(actions: List[Action], explorer: ActorRef) = {
     val updatedActions = actions match {
       case Nil => legalActions
       case _ => actions

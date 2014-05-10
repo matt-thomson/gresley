@@ -89,7 +89,7 @@ case class GameDescription(statements: Seq[Statement]) {
   lazy val actions = constantFacts.getOrElse(classOf[Input], Set())
     .map { case Input(Role(LiteralTerm(role)), action) => (role, action) }
     .groupBy { case (role, _) => role }
-    .map { case (role, as) => (role, as.map { case (_, a) => a}) }
+    .map { case (role, as) => (role, as.map { case (_, a) => a}.toList) }
     .toMap
 
   private def propagateConditionals(simpleFacts: Map[FactTag, Set[Fact]], conditionals: Set[Conditional]): Map[FactTag, Set[Fact]] = {
