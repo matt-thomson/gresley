@@ -3,7 +3,6 @@ package uk.co.mattthomson.coursera.ggp.gresley.gdl
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.FactTag._
 
 case class GameDescription(statements: Seq[Statement]) {
-  // TODO can this be private?
   lazy val constantFacts = {
     val simpleFacts = statements
       .collect { case f: Fact => f }
@@ -23,8 +22,7 @@ case class GameDescription(statements: Seq[Statement]) {
 
   lazy val initialState = new GameState(this, constantFacts.getOrElse(classOf[Init], Set()).map { case Init(fact) => fact })
 
-  lazy val baseFacts = constantFacts.getOrElse(classOf[Base], Set())
-    .map { case Base(fact) => fact }
+  lazy val baseFacts = constantFacts.getOrElse(classOf[Base], Set()).map { case Base(fact) => fact }
 
   lazy val actions = constantFacts.getOrElse(classOf[Input], Set())
     .map { case Input(Role(LiteralTerm(role)), action) => (role, action) }
@@ -33,44 +31,18 @@ case class GameDescription(statements: Seq[Statement]) {
     .toMap
 
   lazy val boundRules = {
-    val (_, rules) = bindRules((constantFacts, Map()), statements.collect { case c: Rule => c}.toSet)
-    rules
+    val (_, rules: Map[FactTag, Set[Rule]]) = bindRules((constantFacts, Map()), statements.collect { case c: Rule => c}.toSet)
+    rules.values
+      .flatten
+      .groupBy(_.conclusion)
+      .mapValues(_.toSet)
   }
 
-  lazy val nextStateRules = boundRules.getOrElse(classOf[Next], Set())
-
-  lazy val stateRules = {
-    def conditionHasState(stateRules: Set[Rule])(condition: Condition): Boolean = condition match {
-      case OrCondition(cs) => cs.exists(conditionHasState(stateRules))
-      case FactCondition(fact) => if (!fact.isInstanceOf[Relation]) false else {
-        val f = fact.asInstanceOf[Relation]
-        stateRules.exists { stateRule =>
-          if (!stateRule.conclusion.isInstanceOf[Relation]) false
-          else {
-            val r = stateRule.conclusion.asInstanceOf[Relation]
-            f.name.matches(r.name).isDefined
-          }
-        }
-      }
-      case _ => true
-    }
-
-    def findStateRulesStep(remainingRules: Seq[Rule], stateRules: Set[Rule]): Set[Rule] = remainingRules match {
-      case rule :: rest => if (rule.conditions.exists(conditionHasState(stateRules))) findStateRulesStep(rest, stateRules + rule) else findStateRulesStep(rest, stateRules)
-      case Nil => stateRules
-    }
-
-    def findStateRules(rules: Seq[Rule], current: Set[Rule]): Set[Rule] = {
-      val stateRules = findStateRulesStep(rules, current)
-      if (stateRules.size == current.size) current else findStateRules(rules, stateRules)
-    }
-
-    val relationRules = statements
-      .collect { case c: Rule => c }
-      .filter { c => c.conclusion.isInstanceOf[Relation] }
-
-    findStateRules(relationRules, Set())
-  }
+  lazy val possibleValues = boundRules.keys
+    .collect { case Goal(Role(LiteralTerm(role)), LiteralTerm(value)) => (role, value) }
+    .groupBy { case (role, _) => role }
+    .toMap
+    .mapValues(_.map(_._2).toSet)
 
   private def propagateRules(soFar: Map[FactTag, Set[Fact]], rules: Set[Rule]): Map[FactTag, Set[Fact]] = {
     val updatedFacts = rules.foldLeft(soFar) { case (facts, rule) =>

@@ -22,10 +22,8 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
 
   lazy val value = Memoize(valueUnmemoized)
 
-  private def valueUnmemoized(role: String) = game.boundRules
-    .getOrElse(classOf[Goal], Set())
-    .map(_.conclusion.asInstanceOf[Goal])
-    .filter(_.role == Role(role))
+  private def valueUnmemoized(role: String) = game.possibleValues.getOrElse(role, Set())
+    .map(v => Goal(Role(role), LiteralTerm(v)))
     .find(prove(_, None))
     .fold(0)(_.value)
 
@@ -34,6 +32,6 @@ case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
   private def proveUnmemoized(input: (Fact, Option[Map[Role, Action]])) = {
     val (fact, actions) = input
     if (game.constantFacts.getOrElse(fact.tag, Set()).contains(fact)) true
-    else game.boundRules.getOrElse(fact.tag, Set()).exists(_.prove(fact, this, actions))
+    else game.boundRules.getOrElse(fact, Set()).exists(_.prove(fact, this, actions))
   }
 }
