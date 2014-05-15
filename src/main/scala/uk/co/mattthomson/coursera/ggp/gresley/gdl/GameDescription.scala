@@ -3,58 +3,44 @@ package uk.co.mattthomson.coursera.ggp.gresley.gdl
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.FactTag._
 
 case class GameDescription(statements: Seq[Statement]) {
+  // TODO can this be private?
   lazy val constantFacts = {
-    val simpleFacts = statements.collect { case f: Fact => f }
+    val simpleFacts = statements
+      .collect { case f: Fact => f }
       .toSet
       .groupBy { f: Fact => f.tag }
       .toMap
 
-    val conditionals: Set[Conditional] = statements
-      .collect { case c: Conditional => c }
+    val rules: Set[Rule] = statements
+      .collect { case c: Rule => c }
       .filter { c => c.conditions.forall(_.isInstanceOf[FactCondition]) }
       .toSet
 
-    propagateConditionals(simpleFacts, conditionals)
+    propagateRules(simpleFacts, rules)
   }
 
   lazy val roles = statements.collect { case Role(LiteralTerm(role)) => role }
 
-  lazy val initialState = {
-    val simpleFacts = statements.collect { case Init(fact) => fact }.toSet
-    val conditionals = statements
-      .collect { case c: Conditional => c }
-      .filter { c => c.conclusion.isInstanceOf[Init] }
-      .toSet
-
-    val allFacts = propagateConditionals(constantFacts + (FactTag(classOf[Init]) -> simpleFacts), conditionals)
-    new GameState(this, allFacts.getOrElse(classOf[Init], Set()))
-  }
+  lazy val initialState = new GameState(this, constantFacts.getOrElse(classOf[Init], Set()).map { case Init(fact) => fact })
 
   lazy val baseFacts = constantFacts.getOrElse(classOf[Base], Set())
     .map { case Base(fact) => fact }
 
-  lazy val legalMoveRules = statements
-    .collect { case c: Conditional => c }
-    .filter { c => c.conclusion.isInstanceOf[Legal] }
-    .toSet
+  lazy val actions = constantFacts.getOrElse(classOf[Input], Set())
+    .map { case Input(Role(LiteralTerm(role)), action) => (role, action) }
+    .groupBy { case (role, _) => role }
+    .map { case (role, as) => (role, as.map { case (_, a) => a}.toList) }
+    .toMap
 
-  lazy val nextStateRules = statements
-    .collect { case c: Conditional => c }
-    .filter { c => c.conclusion.isInstanceOf[Next] }
-    .toSet
+  lazy val boundRules = {
+    val (_, rules) = bindRules((constantFacts, Map()), statements.collect { case c: Rule => c}.toSet)
+    rules
+  }
 
-  lazy val terminalRules = statements
-    .collect { case c: Conditional => c }
-    .filter { c => c.conclusion == Terminal }
-    .toSet
-
-  lazy val goalRules = statements
-    .collect { case c: Conditional => c }
-    .filter { c => c.conclusion.isInstanceOf[Goal] }
-    .toSet
+  lazy val nextStateRules = boundRules.getOrElse(classOf[Next], Set())
 
   lazy val stateRules = {
-    def conditionHasState(stateRules: Set[Conditional])(condition: Condition): Boolean = condition match {
+    def conditionHasState(stateRules: Set[Rule])(condition: Condition): Boolean = condition match {
       case OrCondition(cs) => cs.exists(conditionHasState(stateRules))
       case FactCondition(fact) => if (!fact.isInstanceOf[Relation]) false else {
         val f = fact.asInstanceOf[Relation]
@@ -69,34 +55,59 @@ case class GameDescription(statements: Seq[Statement]) {
       case _ => true
     }
 
-    def findStateRulesStep(remainingRules: Seq[Conditional], stateRules: Set[Conditional]): Set[Conditional] = remainingRules match {
+    def findStateRulesStep(remainingRules: Seq[Rule], stateRules: Set[Rule]): Set[Rule] = remainingRules match {
       case rule :: rest => if (rule.conditions.exists(conditionHasState(stateRules))) findStateRulesStep(rest, stateRules + rule) else findStateRulesStep(rest, stateRules)
       case Nil => stateRules
     }
 
-    def findStateRules(rules: Seq[Conditional], current: Set[Conditional]): Set[Conditional] = {
+    def findStateRules(rules: Seq[Rule], current: Set[Rule]): Set[Rule] = {
       val stateRules = findStateRulesStep(rules, current)
       if (stateRules.size == current.size) current else findStateRules(rules, stateRules)
     }
 
     val relationRules = statements
-      .collect { case c: Conditional => c }
+      .collect { case c: Rule => c }
       .filter { c => c.conclusion.isInstanceOf[Relation] }
 
     findStateRules(relationRules, Set())
   }
 
-  lazy val actions = constantFacts.getOrElse(classOf[Input], Set())
-    .map { case Input(Role(LiteralTerm(role)), action) => (role, action) }
-    .groupBy { case (role, _) => role }
-    .map { case (role, as) => (role, as.map { case (_, a) => a}.toList) }
-    .toMap
-
-  private def propagateConditionals(simpleFacts: Map[FactTag, Set[Fact]], conditionals: Set[Conditional]): Map[FactTag, Set[Fact]] = {
-    val updatedFacts = conditionals.foldLeft(simpleFacts) { case (f, conditional) => conditional.propagate(f, Map(), None) }
+  private def propagateRules(soFar: Map[FactTag, Set[Fact]], rules: Set[Rule]): Map[FactTag, Set[Fact]] = {
+    val updatedFacts = rules.foldLeft(soFar) { case (facts, rule) =>
+      val rules = rule.bind(facts)
+      if (rules.isEmpty) facts else {
+        val tag = rules.head.conclusion.tag
+        facts + (tag -> (facts.getOrElse(tag, Set()) ++ rules.map(_.conclusion)))
+      }
+    }
 
     def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
-    if (totalSize(simpleFacts) == totalSize(updatedFacts)) simpleFacts else propagateConditionals(updatedFacts, conditionals)
+    if (totalSize(soFar) == totalSize(updatedFacts)) soFar else propagateRules(updatedFacts, rules)
+  }
+
+  private def bindRules(soFar: (Map[FactTag, Set[Fact]], Map[FactTag, Set[Rule]]), rules: Set[Rule]): (Map[FactTag, Set[Fact]], Map[FactTag, Set[Rule]]) = {
+    val updated = rules.foldLeft(soFar) { case ((oldFacts, oldBounds), rule) =>
+      val newlyBounds = rule.bind(oldFacts)
+      if (newlyBounds.isEmpty) (oldFacts, oldBounds) else {
+        val tag = newlyBounds.head.conclusion.tag
+
+        val updatedBound = oldBounds.get(tag) match {
+          case Some(oldBound) => oldBound ++ newlyBounds
+          case None => newlyBounds
+        }
+
+        val newFact = updatedBound.map(_.conclusion)
+        val updatedFacts = oldFacts.get(tag) match {
+          case Some(oldFact) => oldFact ++ newFact
+          case None => newFact
+        }
+
+        (oldFacts + (tag -> updatedFacts), oldBounds + (tag -> updatedBound))
+      }
+    }
+
+    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
+    if (totalSize(soFar._2) == totalSize(updated._2)) soFar else bindRules(updated, rules)
   }
 }
 

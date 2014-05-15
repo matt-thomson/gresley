@@ -56,11 +56,11 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     description.constantFacts(NamedFactTag(classOf[Relation], "col")) should be (colFacts.toSet)
   }
 
-  it should "process conditional relations correctly" in {
+  it should "process rule relations correctly" in {
     val description = GameDescription(List(
       Relation("row", List("1")),
       Relation("row", List("2")),
-      Conditional(Relation("cell", List("1", VariableTerm("x"))), List(
+      Rule(Relation("cell", List("1", VariableTerm("x"))), List(
         FactCondition(Relation("row", List(VariableTerm("x"))))
       ))
     ))
@@ -71,11 +71,11 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     ))
   }
 
-  it should "include roles in conditional relations" in {
+  it should "include roles in rule relations" in {
     val description = GameDescription(List(
       Role("black"),
       Relation("move", List("black", "1")),
-      Conditional(Relation("row", List(VariableTerm("y"))), List(
+      Rule(Relation("row", List(VariableTerm("y"))), List(
         FactCondition(Role(VariableTerm("x"))),
         FactCondition(Relation("move", List(VariableTerm("x"), VariableTerm("y"))))
       ))
@@ -86,12 +86,12 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     ))
   }
 
-  it should "propagate conditionals fully" in {
+  it should "propagate rules fully" in {
     val description = GameDescription(List(
       Relation("next", List("1", "2")),
       Relation("next", List("2", "3")),
       Relation("number", List("1")),
-      Conditional(Relation("number", List(VariableTerm("y"))), List(
+      Rule(Relation("number", List(VariableTerm("y"))), List(
         FactCondition(Relation("number", List(VariableTerm("x")))),
         FactCondition(Relation("next", List(VariableTerm("x"), VariableTerm("y"))))
       ))

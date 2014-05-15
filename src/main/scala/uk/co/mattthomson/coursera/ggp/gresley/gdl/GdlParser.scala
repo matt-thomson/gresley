@@ -32,7 +32,7 @@ class GdlParser extends RegexParsers {
   private def variableTerm = "?" ~> variableName ^^ { name => VariableTerm(name) }
   private def literalTerm = name ^^ { name => LiteralTerm(name) }
 
-  private def statement: Parser[Statement] = conditional | fact
+  private def statement: Parser[Statement] = rule | fact
   private def fact: Parser[Fact] = role | relation | base | input | init | legal | next | goal | terminal
 
   private def singleAction = term ^^ { name => Action(name, Nil) }
@@ -61,7 +61,7 @@ class GdlParser extends RegexParsers {
   private def orCondition = """\(\s*or""".r ~> condition.* <~ ")" ^^ { condition => OrCondition(condition) }
   private def distinctCondition = """\(\s*distinct""".r ~> term.* <~ ")" ^^ { terms => DistinctCondition(terms) }
 
-  private def conditional = """\(\s*<=""".r ~> fact ~ condition.* <~ ")" ^^ { case conclusion ~ conditions => Conditional(conclusion, conditions) }
+  private def rule = """\(\s*<=""".r ~> fact ~ condition.* <~ ")" ^^ { case conclusion ~ conditions => Rule(conclusion, conditions) }
 
   def message = info | start | play | stop | abort
 

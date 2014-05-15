@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.13",
   "org.eclipse.jetty" % "jetty-webapp" % "8.1.14.v20131031",
   "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar")),
-  "com.github.nscala-time" %% "nscala-time" % "1.0.0"
+  "com.github.nscala-time" %% "nscala-time" % "1.0.0",
+  "com.twitter" %% "util-core" % "6.16.0"
 )
 
 libraryDependencies ++= Seq(

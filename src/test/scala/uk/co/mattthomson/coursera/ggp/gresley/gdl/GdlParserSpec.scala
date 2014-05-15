@@ -28,8 +28,8 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
     parse("(init (cell a))", Init(Relation("cell", List("a"))))
   }
 
-  it should "parse a conditional" in {
-    parse("(<= (step ?x) (succ 1 ?x))", Conditional(
+  it should "parse a rule" in {
+    parse("(<= (step ?x) (succ 1 ?x))", Rule(
       Relation("step", List(VariableTerm("x"))),
       List(FactCondition(Relation("succ", List("1", VariableTerm("x")))))
     ))
@@ -54,7 +54,7 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Base(Relation("gold", List("d"))),
       Base(Relation("gold", List("i"))),
       Base(Relation("step", List("1"))),
-      Conditional(Base(Relation("step", List(VariableTerm("x")))), List(FactCondition(Relation("succ", List(VariableTerm("y"), VariableTerm("x")))))),
+      Rule(Base(Relation("step", List(VariableTerm("x")))), List(FactCondition(Relation("succ", List(VariableTerm("y"), VariableTerm("x")))))),
 
       Input(Role("robot"), Action("move", Nil)),
       Input(Role("robot"), Action("grab", Nil)),
@@ -64,51 +64,51 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Init(Relation("gold", List("c"))),
       Init(Relation("step", List("1"))),
 
-      Conditional(Next(Relation("cell", List(VariableTerm("y")))), List(
+      Rule(Next(Relation("cell", List(VariableTerm("y")))), List(
         ActionCondition(Role("robot"), Action("move", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         FactCondition(Relation("adjacent", List(VariableTerm("x"), VariableTerm("y"))))
       )),
-      Conditional(Next(Relation("cell", List(VariableTerm("x")))), List(
+      Rule(Next(Relation("cell", List(VariableTerm("x")))), List(
         ActionCondition(Role("robot"), Action("grab", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x"))))
       )),
-      Conditional(Next(Relation("cell", List(VariableTerm("x")))), List(
+      Rule(Next(Relation("cell", List(VariableTerm("x")))), List(
         ActionCondition(Role("robot"), Action("drop", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x"))))
       )),
 
-      Conditional(Next(Relation("gold", List(VariableTerm("x")))), List(
+      Rule(Next(Relation("gold", List(VariableTerm("x")))), List(
         ActionCondition(Role("robot"), Action("move", Nil)),
         StateCondition(Relation("gold", List(VariableTerm("x"))))
       )),
-      Conditional(Next(Relation("gold", List("i"))), List(
+      Rule(Next(Relation("gold", List("i"))), List(
         ActionCondition(Role("robot"), Action("grab", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("gold", List(VariableTerm("x"))))
       )),
-      Conditional(Next(Relation("gold", List("i"))), List(
+      Rule(Next(Relation("gold", List("i"))), List(
         ActionCondition(Role("robot"), Action("grab", Nil)),
         StateCondition(Relation("gold", List("i")))
       )),
-      Conditional(Next(Relation("gold", List(VariableTerm("y")))), List(
+      Rule(Next(Relation("gold", List(VariableTerm("y")))), List(
         ActionCondition(Role("robot"), Action("grab", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("gold", List(VariableTerm("y")))),
         DistinctCondition(List(VariableTerm("x"), VariableTerm("y")))
       )),
-      Conditional(Next(Relation("gold", List(VariableTerm("x")))), List(
+      Rule(Next(Relation("gold", List(VariableTerm("x")))), List(
         ActionCondition(Role("robot"), Action("drop", Nil)),
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("gold", List("i")))
       )),
-      Conditional(Next(Relation("gold", List(VariableTerm("x")))), List(
+      Rule(Next(Relation("gold", List(VariableTerm("x")))), List(
         ActionCondition(Role("robot"), Action("drop", Nil)),
         StateCondition(Relation("gold", List(VariableTerm("x")))),
         DistinctCondition(List(VariableTerm("x"), "i"))
       )),
 
-      Conditional(Next(Relation("step", List(VariableTerm("y")))), List(
+      Rule(Next(Relation("step", List(VariableTerm("y")))), List(
         StateCondition(Relation("step", List(VariableTerm("x")))),
         FactCondition(Relation("succ", List(VariableTerm("x"), VariableTerm("y"))))
       )),
@@ -128,27 +128,27 @@ class GdlParserSpec extends FlatSpec with ShouldMatchers {
       Relation("succ", List("8", "9")),
       Relation("succ", List("9", "10")),
 
-      Conditional(Legal(Role("robot"), Action("move", Nil)), List(FactCondition(Relation("succ", List("1", "2"))))),
-      Conditional(Legal(Role("robot"), Action("grab", Nil)), List(
+      Rule(Legal(Role("robot"), Action("move", Nil)), List(FactCondition(Relation("succ", List("1", "2"))))),
+      Rule(Legal(Role("robot"), Action("grab", Nil)), List(
         StateCondition(Relation("cell", List(VariableTerm("x")))),
         StateCondition(Relation("gold", List(VariableTerm("x"))))
       )),
-      Conditional(Legal(Role("robot"), Action("drop", Nil)), List(
+      Rule(Legal(Role("robot"), Action("drop", Nil)), List(
         StateCondition(Relation("gold", List("i")))
       )),
 
-      Conditional(Goal(Role("robot"), LiteralTerm("100")), List(
+      Rule(Goal(Role("robot"), LiteralTerm("100")), List(
         StateCondition(Relation("gold", List("a")))
       )),
-      Conditional(Goal(Role("robot"), LiteralTerm("0")), List(
+      Rule(Goal(Role("robot"), LiteralTerm("0")), List(
         StateCondition(Relation("gold", List(VariableTerm("x")))),
         DistinctCondition(List(VariableTerm("x"), "a"))
       )),
 
-      Conditional(Terminal, List(
+      Rule(Terminal, List(
         StateCondition(Relation("step", List("10")))
       )),
-      Conditional(Terminal, List(
+      Rule(Terminal, List(
         StateCondition(Relation("gold", List("a")))
       ))
     )

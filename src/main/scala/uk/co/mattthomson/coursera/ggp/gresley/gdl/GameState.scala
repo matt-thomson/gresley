@@ -1,47 +1,39 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
+import com.twitter.util.Memoize
+
 case class GameState(game: GameDescription, trueFacts: Set[Fact]) {
-  private lazy val stateFacts = propagateConditionals(game.constantFacts, Map(), game.stateRules)
+  lazy val legalActions = Memoize(legalActionsUnmemoized)
 
-  lazy val legalActions = {
-    game.actions.map { case (role, as) => (role, as.filter(isLegal(role))) }
+  private def legalActionsUnmemoized(role: String) = {
+    game.actions.getOrElse(role, List()).filter(isLegal(role))
   }
 
-  def isLegal(role: String)(action: Action): Boolean = {
-    val fact = Legal(Role(role), action)
-    game.constantFacts.getOrElse(classOf[Legal], Set()).contains(fact) ||
-      game.legalMoveRules.exists { rule => rule.proves(fact, stateFacts, Map(), Some(this)) }
-  }
+  def isLegal(role: String)(action: Action) = prove(Legal(Role(role), action), None)
 
   def update(actions: Map[String, Action]) = {
-    def isTrue(stateFacts: Map[FactTag, Set[Fact]], actions: Map[Role, Action])(fact: Fact): Boolean = {
-      val nextFact = Next(fact)
-      game.constantFacts.getOrElse(classOf[Next], Set()).contains(nextFact) ||
-        game.nextStateRules.exists { rule => rule.proves(nextFact, stateFacts, actions, Some(this)) }
-    }
-
     val actionsWithRoles = actions.map { case (role, action) => (Role(role), action) }.toMap
-    val updatedStateFacts = propagateConditionals(stateFacts, actionsWithRoles, game.stateRules)
-
-    val facts = game.baseFacts.filter(isTrue(updatedStateFacts, actionsWithRoles))
+    val facts = game.baseFacts.filter(f => prove(Next(f), Some(actionsWithRoles)))
 
     new GameState(game, facts)
   }
 
-  lazy val falseFacts = game.baseFacts -- trueFacts
+  lazy val isTerminal = prove(Terminal, None)
 
-  lazy val isTerminal = game.terminalRules.exists { rule => rule.proves(Terminal, stateFacts, Map(), Some(this)) }
+  lazy val value = Memoize(valueUnmemoized)
 
-  def value(role: String) = propagateConditionals(stateFacts, Map(), game.goalRules)
+  private def valueUnmemoized(role: String) = game.boundRules
     .getOrElse(classOf[Goal], Set())
-    .collect { case g @ Goal(Role(LiteralTerm(`role`)), _) => g.value }
-    .headOption
-    .getOrElse(0)
+    .map(_.conclusion.asInstanceOf[Goal])
+    .filter(_.role == Role(role))
+    .find(prove(_, None))
+    .fold(0)(_.value)
 
-  private def propagateConditionals(facts: Map[FactTag, Set[Fact]], moves: Map[Role, Action], conditionals: Set[Conditional]): Map[FactTag, Set[Fact]] = {
-    val updatedFacts = conditionals.foldLeft(facts) { case (f, conditional) => conditional.propagate(f, moves, Some(this)) }
+  val prove = Memoize(proveUnmemoized)
 
-    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
-    if (totalSize(facts) == totalSize(updatedFacts)) facts else propagateConditionals(updatedFacts, moves, conditionals)
+  private def proveUnmemoized(input: (Fact, Option[Map[Role, Action]])) = {
+    val (fact, actions) = input
+    if (game.constantFacts.getOrElse(fact.tag, Set()).contains(fact)) true
+    else game.boundRules.getOrElse(fact.tag, Set()).exists(_.prove(fact, this, actions))
   }
 }
