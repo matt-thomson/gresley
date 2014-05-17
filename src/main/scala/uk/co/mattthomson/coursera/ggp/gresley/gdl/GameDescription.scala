@@ -45,6 +45,7 @@ case class GameDescription(statements: Seq[Statement]) {
     val relationRules = statements
       .collect { case c: Rule => c }
       .filter(_.conclusion.isInstanceOf[Relation])
+      .filterNot(r => constantFacts.contains(r.conclusion.tag))
 
     findAllFacts(constantFacts, relationRules)
   }
