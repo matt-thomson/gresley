@@ -257,6 +257,8 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("cell", List("3", "3", "b"))
     ))
 
+    print(game.allFacts.values.flatten.mkString("\n"))
+
     state.isTerminal should be (true)
     state.value("oplayer") should be (0)
     state.value("xplayer") should be (100)

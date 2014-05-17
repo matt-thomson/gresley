@@ -16,8 +16,34 @@ case class Rule(conclusion: Fact, conditions: Seq[Condition]) extends Statement 
 
     bindInner(facts, Set())
   }
+  
+  def updateWithConclusions(allFacts: Map[FactTag, Set[Fact]]): Map[FactTag, Set[Fact]] = {
+    def bindCondition(values: Set[Map[String, String]], condition: Condition) = values.flatMap(condition.bindings(allFacts))
 
-  def prove(fact: Fact, state: GameState, actions: Option[Map[Role, Action]]) =
-    if (fact == conclusion) conditions.forall(_.prove(state, actions))
-    else false
+    val facts = allFacts.getOrElse(conclusion.tag, Set())
+
+    val values = conditions.foldLeft(Set[Map[String, String]](Map()))(bindCondition)
+    val updatedFacts = values.map(conclusion.substitute) ++ facts
+
+    if (facts.size == updatedFacts.size) allFacts else {
+      val newAllFacts = allFacts + (conclusion.tag -> (facts ++ updatedFacts))
+      updateWithConclusions(newAllFacts)
+    }
+  }
+
+  def bind(fact: Fact) = conclusion.matches(fact, Map()) match {
+    case Some(values) => Some(Rule(fact, conditions.map(_.substitute(values))))
+    case None => None
+  }
+
+  def prove(fact: Fact, state: GameState, actions: Option[Map[Role, Action]]) = {
+    def bind(conditions: Seq[Condition]): Seq[Seq[Condition]] = conditions match {
+      case condition :: rest => condition.bindings(state.game, state, actions).view.flatMap { v =>
+        bind(rest.map(_.substitute(v))).map(condition.substitute(v) +: _)
+      }
+      case Nil => Seq(Seq())
+    }
+
+    if (fact == conclusion) bind(conditions).view.exists(_.forall(_.prove(state, actions))) else false
+  }
 }

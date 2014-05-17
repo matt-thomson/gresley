@@ -1,6 +1,7 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.FactTag._
+import com.twitter.util.Memoize
 
 case class GameDescription(statements: Seq[Statement]) {
   lazy val constantFacts = {
@@ -30,19 +31,26 @@ case class GameDescription(statements: Seq[Statement]) {
     .map { case (role, as) => (role, as.map { case (_, a) => a}.toList) }
     .toMap
 
-  lazy val boundRules = {
-    val (_, rules: Map[FactTag, Set[Rule]]) = bindRules((constantFacts, Map()), statements.collect { case c: Rule => c}.toSet)
-    rules.values
-      .flatten
-      .groupBy(_.conclusion)
-      .mapValues(_.toSet)
+  private lazy val allRules = statements
+    .collect { case c: Rule => c }
+    .groupBy(_.conclusion.tag)
+
+  val rules = Memoize(rulesUnmemoized)
+
+  private def rulesUnmemoized(conclusion: Fact) = allRules
+    .getOrElse(conclusion.tag, Seq())
+    .flatMap(_.bind(conclusion))
+
+  lazy val allFacts: Map[FactTag, Set[Fact]] = {
+    val relationRules = statements
+      .collect { case c: Rule => c }
+      .filter(_.conclusion.isInstanceOf[Relation])
+
+    findAllFacts(constantFacts, relationRules)
   }
 
-  lazy val possibleValues = boundRules.keys
-    .collect { case Goal(Role(LiteralTerm(role)), LiteralTerm(value)) => (role, value) }
-    .groupBy { case (role, _) => role }
-    .toMap
-    .mapValues(_.map(_._2).toSet)
+  // TODO better way of doing this
+  def possibleValues(role: String) = (0 to 100).map(_.toString)
 
   private def propagateRules(soFar: Map[FactTag, Set[Fact]], rules: Set[Rule]): Map[FactTag, Set[Fact]] = {
     val updatedFacts = rules.foldLeft(soFar) { case (facts, rule) =>
@@ -57,29 +65,11 @@ case class GameDescription(statements: Seq[Statement]) {
     if (totalSize(soFar) == totalSize(updatedFacts)) soFar else propagateRules(updatedFacts, rules)
   }
 
-  private def bindRules(soFar: (Map[FactTag, Set[Fact]], Map[FactTag, Set[Rule]]), rules: Set[Rule]): (Map[FactTag, Set[Fact]], Map[FactTag, Set[Rule]]) = {
-    val updated = rules.foldLeft(soFar) { case ((oldFacts, oldBounds), rule) =>
-      val newlyBounds = rule.bind(oldFacts)
-      if (newlyBounds.isEmpty) (oldFacts, oldBounds) else {
-        val tag = newlyBounds.head.conclusion.tag
+  private def findAllFacts(soFar: Map[FactTag, Set[Fact]], rules: Seq[Rule]): Map[FactTag, Set[Fact]] = {
+    val updated = rules.foldLeft(soFar) { case (oldFacts, rule) => rule.updateWithConclusions(oldFacts) }
 
-        val updatedBound = oldBounds.get(tag) match {
-          case Some(oldBound) => oldBound ++ newlyBounds
-          case None => newlyBounds
-        }
-
-        val newFact = updatedBound.map(_.conclusion)
-        val updatedFacts = oldFacts.get(tag) match {
-          case Some(oldFact) => oldFact ++ newFact
-          case None => newFact
-        }
-
-        (oldFacts + (tag -> updatedFacts), oldBounds + (tag -> updatedBound))
-      }
-    }
-
-    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
-    if (totalSize(soFar._2) == totalSize(updated._2)) soFar else bindRules(updated, rules)
+    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size }.sum
+    if (totalSize(soFar) == totalSize(updated)) soFar else findAllFacts(updated, rules)
   }
 }
 
