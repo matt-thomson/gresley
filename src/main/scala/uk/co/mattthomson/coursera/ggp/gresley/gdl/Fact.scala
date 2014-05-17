@@ -8,6 +8,10 @@ trait Fact extends Statement {
   def matches(completeFact: Fact, values: Map[String, String]): Option[Map[String, String]]
 
   def tag: FactTag = getClass
+
+  def allTerms: Seq[Term]
+
+  def isComplete = allTerms.forall(_.isInstanceOf[LiteralTerm])
 }
 
 case class Role(private val nameTerm: Term) extends Fact {
@@ -17,6 +21,8 @@ case class Role(private val nameTerm: Term) extends Fact {
     case Role(otherTerm) => nameTerm.substitute(values).matches(otherTerm.substitute(values)).map(_ ++ values)
     case _ => None
   }
+
+  override lazy val allTerms = Seq(nameTerm)
 }
 
 case class Relation(name: Term, terms: Seq[Term]) extends Fact with Term {
@@ -35,6 +41,8 @@ case class Relation(name: Term, terms: Seq[Term]) extends Fact with Term {
     case _ => None
   }
 
+  override lazy val allTerms = Seq(name) ++ terms.flatMap(_.allTerms)
+
   override def tag = NamedFactTag(classOf[Relation], name.toString)
 }
 
@@ -45,6 +53,8 @@ case class Base(fact: Fact) extends Fact {
     case Base(otherFact) => fact.matches(otherFact, values)
     case _ => None
   }
+
+  override lazy val allTerms = fact.allTerms
 }
 
 case class Action(name: Term, terms: Seq[Term]) extends Fact {
@@ -57,6 +67,8 @@ case class Action(name: Term, terms: Seq[Term]) extends Fact {
     }
     case _ => None
   }
+
+  override lazy val allTerms = terms ++ Seq(name)
 
   override def toString = terms match {
     case Nil => name.toString
@@ -75,6 +87,8 @@ case class Input(role: Role, action: Action) extends Fact {
       }
     case _ => None
   }
+
+  override lazy val allTerms = role.allTerms ++ Seq(action.name) ++ action.terms
 }
 
 case class Init(fact: Fact) extends Fact {
@@ -84,6 +98,8 @@ case class Init(fact: Fact) extends Fact {
     case Init(otherFact) => fact.matches(otherFact, values)
     case _ => None
   }
+
+  override lazy val allTerms = fact.allTerms
 }
 
 case class Legal(role: Role, action: Action) extends Fact {
@@ -97,6 +113,8 @@ case class Legal(role: Role, action: Action) extends Fact {
       }
     case _ => None
   }
+
+  override lazy val allTerms = role.allTerms ++ Seq(action.name) ++ action.terms
 }
 
 case class Next(fact: Fact) extends Fact {
@@ -106,6 +124,8 @@ case class Next(fact: Fact) extends Fact {
     case Next(otherFact) => fact.matches(otherFact, values)
     case _ => None
   }
+
+  override lazy val allTerms = fact.allTerms
 }
 
 case class Goal(role: Role, score: Term) extends Fact {
@@ -120,6 +140,8 @@ case class Goal(role: Role, score: Term) extends Fact {
     case _ => None
   }
 
+  override lazy val allTerms = Seq(score) ++ role.allTerms
+
   lazy val value = score match {
     case LiteralTerm(s) => s.toInt
     case _ => throw new IllegalArgumentException("Can only get the value of a literal goal")
@@ -133,4 +155,6 @@ case object Terminal extends Fact {
     case Terminal => Some(values)
     case _ => None
   }
+
+  override lazy val allTerms = Nil
 }

@@ -18,7 +18,9 @@ case class Rule(conclusion: Fact, conditions: Seq[Condition]) extends Statement 
   }
   
   def updateWithConclusions(allFacts: Map[FactTag, Set[Fact]]): Map[FactTag, Set[Fact]] = {
-    def bindCondition(values: Set[Map[String, String]], condition: Condition) = values.flatMap(condition.bindings(allFacts))
+    def bindCondition(values: Set[Map[String, String]], condition: Condition) = values flatMap { v =>
+      if (conclusion.substitute(v).isComplete) Set(v) else condition.bindings(allFacts)(v)
+    }
 
     val facts = allFacts.getOrElse(conclusion.tag, Set())
 

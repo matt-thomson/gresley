@@ -4,6 +4,8 @@ trait Term {
   def substitute(values: Map[String, String]): Term
 
   def matches(term: Term): Option[Map[String, String]]
+
+  def allTerms: Seq[Term] = Seq(this)
 }
 
 case class LiteralTerm(name: String) extends Term {
