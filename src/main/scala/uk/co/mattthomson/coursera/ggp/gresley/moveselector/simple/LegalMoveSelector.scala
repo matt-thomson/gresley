@@ -8,7 +8,7 @@ class LegalMoveSelector extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize(_, _, _) => sender ! Initialized(())
     case Play(_, state, role, _, _) =>
-      val chosenAction = state.game.actions(role).find(state.isLegal(role)).get
+      val chosenAction = state.game.actions(role).sortBy(_.toString).find(state.isLegal(role) _).get
       log.info(s"Chosen action: $chosenAction")
 
       sender ! SelectedMove(chosenAction)

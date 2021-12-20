@@ -6,11 +6,11 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.{Initialized, Initia
 import org.joda.time.DateTime
 import scala.io.Source
 import akka.testkit.{ImplicitSender, TestKit}
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import scala.concurrent.duration._
 
-class IterativeDeepeningMoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with ShouldMatchers {
+class IterativeDeepeningMoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) with AnyFlatSpecLike with ImplicitSender with should.Matchers {
   "The iterative deepening move selector" should "play Hunter" ignore {
     val finalState = playGame("hunter", List(Props(new IterativeDeepeningMoveSelector)))
 

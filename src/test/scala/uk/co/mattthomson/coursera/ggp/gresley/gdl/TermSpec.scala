@@ -1,10 +1,10 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Term._
 
-class TermSpec extends FlatSpec with ShouldMatchers {
+class TermSpec extends AnyFlatSpec with should.Matchers {
   "A literal term" should "be constructable from a string" in {
     val term: Term = "y"
 

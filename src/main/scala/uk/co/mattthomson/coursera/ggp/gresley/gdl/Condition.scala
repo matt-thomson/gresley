@@ -17,7 +17,7 @@ case class FactCondition(fact: Fact) extends Condition {
   override def substitute(values: Map[String, String]) = FactCondition(fact.substitute(values))
 
   override def bindings(game: GameDescription, state: GameState, actions: Option[Map[Role, Action]]) =
-    game.allFacts.getOrElse(fact.tag, Set()).toSeq.view.flatMap(fact.matches(_, Map()))
+    game.allFacts.getOrElse(fact.tag, Set()).toSeq.view.flatMap(fact.matches(_, Map())).toSeq
 
   override def prove(state: GameState, actions: Option[Map[Role, Action]]) = state.prove(fact, actions)
 }
@@ -29,7 +29,7 @@ case class StateCondition(fact: Fact) extends Condition {
   override def substitute(values: Map[String, String]) = StateCondition(fact.substitute(values))
 
   override def bindings(game: GameDescription, state: GameState, actions: Option[Map[Role, Action]]) =
-    state.trueFacts.toSeq.view.flatMap(fact.matches(_, Map()))
+    state.trueFacts.toSeq.view.flatMap(fact.matches(_, Map())).toSeq
 
   override def prove(state: GameState, actions: Option[Map[Role, Action]]) = state.trueFacts.contains(fact)
 }
@@ -41,7 +41,7 @@ case class ActionCondition(role: Role, action: Action) extends Condition {
   override def substitute(values: Map[String, String]) = ActionCondition(role.substitute(values), action.substitute(values))
 
   override def bindings(game: GameDescription, state: GameState, actions: Option[Map[Role, Action]]) =
-    actions.getOrElse(Map()).toSeq.view.flatMap { case (r, a) => role.matches(r, Map()).flatMap(action.matches(a, _)) }
+    actions.getOrElse(Map()).toSeq.view.flatMap { case (r, a) => role.matches(r, Map()).flatMap(action.matches(a, _)) }.toSeq
 
   override def prove(state: GameState, actions: Option[Map[Role, Action]]) = actions.flatMap(_.get(role)) match {
     case Some(`action`) => true

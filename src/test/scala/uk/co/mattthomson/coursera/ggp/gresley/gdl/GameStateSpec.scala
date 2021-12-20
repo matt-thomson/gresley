@@ -1,10 +1,10 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import scala.io.Source
 
-class GameStateSpec extends FlatSpec with ShouldMatchers {
+class GameStateSpec extends AnyFlatSpec with should.Matchers {
   "A game state" should "find the legal moves" in {
     val game = new GameDescription(List(
       Relation("cell", List("1")),
@@ -19,7 +19,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
 
     val state = new GameState(game, Set())
 
-    state.legalActions("black") should be (List(
+    state.legalActions("black").toSet should be (Set(
       Action("move", List("2")),
       Action("move", List("1"))
     ))
@@ -41,7 +41,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("cell", List("1"))
     ))
 
-    state.legalActions("black") should be (List(
+    state.legalActions("black").toSet should be (Set(
       Action("move", List("1"))
     ))
   }
@@ -66,7 +66,7 @@ class GameStateSpec extends FlatSpec with ShouldMatchers {
       Relation("cell", List("2"))
     ))
 
-    state.legalActions("black") should be (List(
+    state.legalActions("black").toSet should be (Set(
       Action("move", List("1", "2")),
       Action("move", List("2", "1"))
     ))

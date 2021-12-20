@@ -14,7 +14,7 @@ class MinimaxMoveSelectorSpec extends MoveSelectorSpec {
   it should "play Tic Tac Toe 5" in {
     val finalState = playGame("tictactoe5", List(Props[MinimaxMoveSelector], Props[LegalMoveSelector]))
 
-    finalState.value("white") should be (100)
+    finalState.value("white") should be (50)
   }
 
   it should "play Tic Tac Toe 7" ignore {

@@ -9,10 +9,10 @@ import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.player.{Player, GameManager}
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameProtocolMessage
 import javax.servlet.http.HttpServletRequest
-import org.scalatra.util.MultiMap
 import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
 
 class GresleyServlet(system: ActorSystem, moveSelectorPropsFactory: MoveSelectorPropsFactory) extends ScalatraServlet with FutureSupport with CorsSupport {
+
   private val logger = LoggerFactory.getLogger(getClass)
   private val manager = system.actorOf(Props(new GameManager(Player(_), moveSelectorPropsFactory)))
 
@@ -41,5 +41,5 @@ class GresleyServlet(system: ActorSystem, moveSelectorPropsFactory: MoveSelector
     }
   }
 
-  override def multiParams(implicit request: HttpServletRequest) = new MultiMap
+  override def multiParams(implicit request: HttpServletRequest) = collection.immutable.SeqMap[String, Seq[String]]()
 }

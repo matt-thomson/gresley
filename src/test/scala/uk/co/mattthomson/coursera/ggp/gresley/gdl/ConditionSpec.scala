@@ -1,11 +1,12 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
 import org.mockito.Mockito._
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 
-class ConditionSpec extends FlatSpec with ShouldMatchers with MockitoSugar {
+
+class ConditionSpec extends AnyFlatSpec with should.Matchers with MockitoSugar {
   "A fact condition" should "bind variables to facts" in {
     val fact = Relation("cell", List(VariableTerm("x")))
     val condition = FactCondition(fact)

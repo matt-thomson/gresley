@@ -1,11 +1,12 @@
 package uk.co.mattthomson.coursera.ggp.gresley.servlet
 
 import org.scalatra.test.scalatest.ScalatraFlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.ActorSystem
 
-class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with ScalatraFlatSpec with ShouldMatchers with ImplicitSender {
+class GresleyServletSpec extends TestKit(ActorSystem("TestActorSystem")) with ScalatraFlatSpec with should.Matchers with ImplicitSender {
   addServlet(new GresleyServlet(system, null), "/")
 
   "The servlet" should "say hello" in {

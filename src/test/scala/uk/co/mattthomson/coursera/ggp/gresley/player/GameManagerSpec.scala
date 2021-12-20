@@ -1,6 +1,7 @@
 package uk.co.mattthomson.coursera.ggp.gresley.player
 
-import org.scalatest.{BeforeAndAfter, FlatSpec}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.flatspec._
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{ActorRef, Actor, Props, ActorSystem}
 import scala.concurrent.duration._
@@ -9,7 +10,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.{SelectMove, Ne
 import uk.co.mattthomson.coursera.ggp.gresley.moveselector.MoveSelectorPropsFactory
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Ready
 
-class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with BeforeAndAfter {
+class GameManagerSpec extends TestKit(ActorSystem("TestActorSystem")) with AnyFlatSpecLike with ImplicitSender with BeforeAndAfter {
   "The manager" should "respond to an info message" in {
     val manager = system.actorOf(Props(new GameManager(_ => new DummyPlayer, new DummyMoveSelectorPropsFactory)))
     
