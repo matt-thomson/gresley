@@ -1,5 +1,5 @@
-addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.10.0")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.4")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "0.98.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.2")
 
-addSbtPlugin("org.scoverage" %% "sbt-coveralls" % "0.98.0")
+addSbtPlugin("org.scoverage" %% "sbt-coveralls" % "1.3.1")

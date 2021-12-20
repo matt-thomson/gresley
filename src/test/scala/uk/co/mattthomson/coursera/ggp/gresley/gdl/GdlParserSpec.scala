@@ -1,11 +1,11 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Term._
 import scala.io.Source
 
-class GdlParserSpec extends FlatSpec with ShouldMatchers {
+class GdlParserSpec extends AnyFlatSpec with should.Matchers {
   val gdlParser = new GdlParser
 
   "The parser" should "parse a role" in {

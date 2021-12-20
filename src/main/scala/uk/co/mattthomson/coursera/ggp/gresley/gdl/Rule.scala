@@ -42,7 +42,7 @@ case class Rule(conclusion: Fact, conditions: Seq[Condition]) extends Statement 
     def bind(conditions: Seq[Condition]): Seq[Seq[Condition]] = conditions match {
       case condition :: rest => condition.bindings(state.game, state, actions).view.flatMap { v =>
         bind(rest.map(_.substitute(v))).map(condition.substitute(v) +: _)
-      }
+      }.toSeq
       case Nil => Seq(Seq())
     }
 

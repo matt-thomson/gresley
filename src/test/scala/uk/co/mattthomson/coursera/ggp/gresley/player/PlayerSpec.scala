@@ -2,7 +2,8 @@ package uk.co.mattthomson.coursera.ggp.gresley.player
 
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{Actor, Props, ActorSystem}
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.GameDescription
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player._
@@ -13,7 +14,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import uk.co.mattthomson.coursera.ggp.gresley.player.GameManager.SelectMove
 
-class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender {
+class PlayerSpec extends TestKit(ActorSystem("TestActorSystem")) with AnyFlatSpecLike with ImplicitSender {
   private val game = GameDescription("(role black) (input black left) (legal black left)")
 
   "A player" should "initialize" in {

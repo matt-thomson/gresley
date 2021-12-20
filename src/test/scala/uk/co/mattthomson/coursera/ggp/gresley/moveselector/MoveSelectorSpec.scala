@@ -2,8 +2,8 @@ package uk.co.mattthomson.coursera.ggp.gresley.moveselector
 
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{Props, ActorRef, ActorSystem}
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.{GameDescription, GameState}
 import scala.concurrent.duration._
 import scala.io.Source
@@ -13,7 +13,7 @@ import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialized
 import uk.co.mattthomson.coursera.ggp.gresley.player.Player.Initialize
 import org.joda.time.DateTime
 
-abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) with FlatSpec with ImplicitSender with ShouldMatchers {
+abstract class MoveSelectorSpec extends TestKit(ActorSystem("TestActorSystem")) with AnyFlatSpecLike with ImplicitSender with should.Matchers {
   protected def playGame(gameName: String, moveSelectorProps: Seq[Props]): GameState = {
     def play(game: GameDescription, state: GameState, players: Map[String, (ActorRef, Any)]): GameState = {
       if (state.isTerminal) state

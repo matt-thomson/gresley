@@ -1,9 +1,9 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 
-class RuleSpec extends FlatSpec with ShouldMatchers {
+class RuleSpec extends AnyFlatSpec with should.Matchers {
   "A rule" should "bind based on the supplied facts" in {
     val rule = Rule(Input(Role("black"), Action("move", List(VariableTerm("x")))), List(
       StateCondition(Relation("cell", List(VariableTerm("x"))))

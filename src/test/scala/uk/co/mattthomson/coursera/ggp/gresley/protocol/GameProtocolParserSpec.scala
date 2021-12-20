@@ -1,13 +1,13 @@
 package uk.co.mattthomson.coursera.ggp.gresley.protocol
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import scala.concurrent.duration._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Role
 import scala.Some
 
-class GameProtocolParserSpec extends FlatSpec with ShouldMatchers {
+class GameProtocolParserSpec extends AnyFlatSpec with should.Matchers {
   private val parser = new GdlParser
 
   "The parser" should "parse an info message" in {

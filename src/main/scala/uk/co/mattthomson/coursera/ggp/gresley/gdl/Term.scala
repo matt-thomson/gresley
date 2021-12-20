@@ -53,7 +53,7 @@ object Term {
           .mapValues { values => values.map { case (_, v) => v }.toSet }
 
         if (updatedValues.exists { case (x, vs) => vs.size > 1 }) None
-        else Some(updatedValues.mapValues(_.head))
+        else Some(updatedValues.mapValues(_.head).toMap)
       }
     }
   }

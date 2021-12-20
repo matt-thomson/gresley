@@ -1,11 +1,11 @@
 package uk.co.mattthomson.coursera.ggp.gresley.gdl
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import uk.co.mattthomson.coursera.ggp.gresley.gdl.Term._
 import scala.io.Source
 
-class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
+class GameDescriptionSpec extends AnyFlatSpec with should.Matchers {
   "A game description" should "process roles correctly" in {
     val description = GameDescription(List(
       Role("black"),
@@ -132,7 +132,7 @@ class GameDescriptionSpec extends FlatSpec with ShouldMatchers {
     val game = Source.fromFile("src/test/resources/games/maze.kif").mkString
     val description = GameDescription(game)
 
-    description.actions("robot") should be (List(
+    description.actions("robot").toSet should be (Set(
       Action("move", Nil),
       Action("grab", Nil),
       Action("drop", Nil)

@@ -62,14 +62,14 @@ case class GameDescription(statements: Seq[Statement]) {
       }
     }
 
-    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size}.sum
+    def totalSize(m: Map[FactTag, Set[Fact]]) = m.values.map(_.size).sum
     if (totalSize(soFar) == totalSize(updatedFacts)) soFar else propagateRules(updatedFacts, rules)
   }
 
   private def findAllFacts(soFar: Map[FactTag, Set[Fact]], rules: Seq[Rule]): Map[FactTag, Set[Fact]] = {
     val updated = rules.foldLeft(soFar) { case (oldFacts, rule) => rule.updateWithConclusions(oldFacts) }
 
-    def totalSize(m: Map[_, Set[_]]) = m.map { case (_, v) => v.size }.sum
+    def totalSize(m: Map[FactTag, Set[Fact]]) = m.map { case (_, v) => v.size }.sum
     if (totalSize(soFar) == totalSize(updated)) soFar else findAllFacts(updated, rules)
   }
 }
